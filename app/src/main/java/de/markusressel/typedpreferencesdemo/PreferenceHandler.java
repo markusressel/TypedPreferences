@@ -40,7 +40,7 @@ public class PreferenceHandler extends PreferencesHandlerBase {
 
     @NonNull
     @Override
-    public List<de.markusressel.typedpreferences.PreferenceItem> getAllPreferenceItems() {
+    public List<PreferenceItem> getAllPreferenceItems() {
         return allPreferences;
     }
 

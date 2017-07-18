@@ -1,5 +1,5 @@
 # TypedPreferences
-A simple library to make the use of Android's ```SharedPreferences``` easier while keeping it type safe. This library was designed to be used with a Dependency Injection Framework like **Dagger 2** and **Lombok** for boilerplate code generation in mind. If you have never used one of those tools I highly recommend looking into them before building your new app.
+A simple library to make the use of Android's ```SharedPreferences``` easier while keeping it type safe. This library was designed to be used with a Dependency Injection Framework like **Dagger 2** and **Lombok** for boilerplate code generation in mind. If you have never used one of those tools I highly recommend looking into them before you start building your app.
 
 # Build Status
 
@@ -13,7 +13,10 @@ The sample app uses **Dagger 2** to inject the ```PreferenceHandler``` into the 
 
 
 # Create a PreferenceHandler
-The first thing you have to do to get started is creating a class which extends the provided ```PreferenceHandlerBase``` class. A simple example would look something like this:
+The first thing you have to do to get started is creating a class which extends the provided ```PreferenceHandlerBase``` class.
+Override the necessary methods like ```getSharedPreferencesName()``` to provide the name of your SharedPreferences file and ```getAllPreferenceItems()``` to return a list of all your ```PreferenceItem```s.
+
+A simple example would look something like this:
 
 ```
 @Singleton
@@ -39,7 +42,7 @@ public class PreferenceHandler extends PreferencesHandlerBase {
 
     @NonNull
     @Override
-    public List<de.markusressel.typedpreferences.PreferenceItem> getAllPreferenceItems() {
+    public List<PreferenceItem> getAllPreferenceItems() {
         return allPreferences;
     }
 }
