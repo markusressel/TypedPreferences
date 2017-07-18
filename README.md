@@ -11,7 +11,27 @@ A simple library to make the use of Android's ```SharedPreferences``` easier whi
 Have a look at the demo app (```app```  module) for a complete sample.
 The sample app uses **Dagger 2** to inject the ```PreferenceHandler``` into the activity and fragment. Using DI is the recommended way to use this library.
 
-# Create a PreferenceHandler
+## Gradle
+To use this library just include it in your depencencies using
+
+    repositories {
+        ...
+        maven { url "https://jitpack.io" }
+    }
+
+in your project build.gradle file and
+
+    dependencies {
+        compile('com.github.markusressel:TypedPreferences:v1.0.0') {
+            exclude module: 'app'
+            changing = true;
+            transitive = true
+        }
+    }
+
+in your desired module ```build.gradle``` file.
+
+## Create a PreferenceHandler
 The first thing you have to do to get started is creating a class which extends the provided ```PreferenceHandlerBase``` class.
 Override the necessary methods like ```getSharedPreferencesName()``` to provide the name of your SharedPreferences file and ```getAllPreferenceItems()``` to return a list of all your ```PreferenceItem```s.
 
@@ -47,7 +67,7 @@ public class PreferenceHandler extends PreferencesHandlerBase {
 }
 ```
 
-# Define your ```PreferenceItem```'s
+## Define your ```PreferenceItem```'s
 
 To make accessing your preferences as easy as possible define your preferences by declaring a ```PreferenceItem``` in your ```PreferenceHandler``` or any other accessible place.
 
@@ -57,7 +77,7 @@ public static final PreferenceItem<Boolean> BOOLEAN_SETTING = new PreferenceItem
 
 Important to note here is that the key is not a ```String``` but a ```StringRes``` (```int```) that you define in your ```strings.xml```. This makes it possible to also use this value in a ```PreferenceFragment``` like shown in the example app.
 
-# Get a stored value
+## Get a stored value
 
 To retreive a value use the ```getValue(PreferenceItem preferenceItem)``` method of your ```PreferenceHandler```:
 
@@ -74,7 +94,7 @@ PreferenceItem preferenceItem = preferenceHandler.getPreferenceItem(key);
 Boolean value = preferenceHandler.<Boolean>getValue(preferenceItem);
 ```
 
-# Set a new value
+## Set a new value
 
 To set a new value use the ```setValue(preferenceItem, newValue)``` method:
 
