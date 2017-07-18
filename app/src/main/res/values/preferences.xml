@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="category_general">General</string>
+
+    <string name="title_theme">Theme</string>
+
+    <string name="key_theme">theme</string>
+
+    <string name="theme_light_value">0</string>
+    <string name="theme_dark_value">1</string>
+
+    <string-array name="theme_values">
+        <item>@string/theme_light_value</item>
+        <item>@string/theme_dark_value</item>
+    </string-array>
+
+    <string name="theme_light_name">Light</string>
+    <string name="theme_dark_name">Dark</string>
+
+    <string-array name="theme_names">
+        <item>@string/theme_light_name</item>
+        <item>@string/theme_dark_name</item>
+    </string-array>
+
+    <string name="key_boolean_setting">boolean_setting</string>
+    <string name="title_boolean_setting">Boolean Setting</string>
+
+</resources>
