@@ -9,8 +9,7 @@ A simple library to make the use of Android's ```SharedPreferences``` easier whi
 
 # How to use
 Have a look at the demo app (```app```  module) for a complete sample.
-The sample app uses **Dagger 2** to inject the ```PreferenceHandler``` into the activity and fragment because this is the recommended way to use this library.
-
+The sample app uses **Dagger 2** to inject the ```PreferenceHandler``` into the activity and fragment. Using DI is the recommended way to use this library.
 
 # Create a PreferenceHandler
 The first thing you have to do to get started is creating a class which extends the provided ```PreferenceHandlerBase``` class.
@@ -48,7 +47,7 @@ public class PreferenceHandler extends PreferencesHandlerBase {
 }
 ```
 
-# Define your ```PreferenceItem```s
+# Define your ```PreferenceItem```'s
 
 To make accessing your preferences as easy as possible define your preferences by declaring a ```PreferenceItem``` in your ```PreferenceHandler``` or any other accessible place.
 
