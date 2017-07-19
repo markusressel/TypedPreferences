@@ -1,4 +1,4 @@
-# TypedPreferences
+# TypedPreferences [![API](https://img.shields.io/badge/API-14%2B-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=14)
 A simple library to make the use of Android's ```SharedPreferences``` easier while keeping it type safe. This library was designed to be used with a Dependency Injection Framework like **Dagger 2** and **Lombok** for boilerplate code generation in mind. If you have never used one of those tools I highly recommend looking into them before you start building your app.
 
 # Build Status
