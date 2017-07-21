@@ -2,9 +2,9 @@
 A simple library to make the use of Android's ```SharedPreferences``` easier while keeping it type safe.
 For base types there is only generics to provide type safety.
 However it is also possible to use more complex types.
-Those will be serialized to json before saving them to ```SharedPrefrence```s.
+Those will be serialized to json using the **GSON library** ([Link](https://github.com/google/gson)) before saving them to ```SharedPrefrence```s.
  
-This library was designed to be used with a Dependency Injection Framework like **Dagger 2** and **Lombok** for boilerplate code generation in mind.
+This library was designed to be used with a Dependency Injection Framework like **Dagger 2** ([Link](https://github.com/google/dagger)) and **Lombok** ([GitHub](https://github.com/rzwitserloot/lombok), [Examples](https://projectlombok.org/features/all)) for boilerplate code generation in mind.
 If you have never used one of those tools I highly recommend looking into them before you start building your app.
 
 # Build Status
@@ -85,7 +85,9 @@ public static final PreferenceItem<Boolean> BOOLEAN_SETTING = new PreferenceItem
 Important to note here is that the key is not a ```String``` but a ```StringRes``` (```int```) that you define in your ```strings.xml```. This makes it possible to also use this value in a ```PreferenceFragment``` like shown in the example app.
 The generic type will be inferred from the **default value, which therefore must not be ```null```**.
  
-Since v1.1 the type of your PreferenceItem is not limited to base types anymore but can be any class extending ```Object```. If needed your custom object will be serialized to *json* using the **GSON library** and then saved to the ```SharedPreference```s as a ```String```.
+**Since v1.1** the type of your ```PreferenceItem``` is not limited to base types anymore but can be any class extending ```Object```.
+If needed your custom object will be serialized to *json* using the **GSON library** ([Link](https://github.com/google/gson)) and then saved to the ```SharedPreference```s as a ```String```.
+Refer to the [GSON User Guide](https://github.com/google/gson/blob/master/UserGuide.md) for more info on what types are fully serializable by GSON.
 
 ## Get a stored value
 
@@ -128,6 +130,7 @@ If the type of ```newValue``` is not the expected one this line will show an err
 # Troubleshooting
 
 If you are using a custom class as the type of your ```PreferenceItem``` make sure it can be parsed by the GSON library.
+Refer to the [GSON User Guide](https://github.com/google/gson/blob/master/UserGuide.md) for more info on what types are fully serializable by GSON.
 
 # Contributing
 
