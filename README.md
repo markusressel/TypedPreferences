@@ -1,7 +1,7 @@
 # TypedPreferences [![API](https://img.shields.io/badge/API-14%2B-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=14)
 A simple library to make the use of Android's ```SharedPreferences``` easier while keeping it type safe.
-For base types there is only generics to provide type safety.
-However it is also possible to use more complex types.
+For base types this library only uses generics to provide type safety.
+However it is also possible to use more complex classes as types.
 Those will be serialized to json using the **GSON library** ([Link](https://github.com/google/gson)) before saving them to ```SharedPrefrences```.
  
 This library was designed to be used with a Dependency Injection Framework like **Dagger 2** ([Link](https://github.com/google/dagger)) and **Lombok** ([GitHub](https://github.com/rzwitserloot/lombok), [Examples](https://projectlombok.org/features/all)) for boilerplate code generation in mind.
@@ -31,7 +31,6 @@ in your project build.gradle file and
     dependencies {
         compile('com.github.markusressel:TypedPreferences:v1.1.0') {
             exclude module: 'app'
-            changing = true;
             transitive = true
         }
     }
@@ -43,7 +42,6 @@ The first thing you have to do to get started is creating a class which extends 
 Override the necessary methods like ```getSharedPreferencesName()``` to provide the name of your SharedPreferences file and ```getAllPreferenceItems()``` to return a list of all your ```PreferenceItem```s.
 
 A simple example would look something like this:
-
 ```
 @Singleton
 public class PreferenceHandler extends PreferencesHandlerBase {
@@ -59,6 +57,7 @@ public class PreferenceHandler extends PreferencesHandlerBase {
 
         allPreferences = new LinkedList<>();
         allPreferences.add(BOOLEAN_SETTING);
+        allPreferences.add(COMPLEX_SETTING);
     }
 
     @NonNull
@@ -78,7 +77,6 @@ public class PreferenceHandler extends PreferencesHandlerBase {
 ## Define your ```PreferenceItem```s
 
 To make accessing your preferences as easy as possible define them by declaring a ```PreferenceItem``` in your ```PreferenceHandler``` or any other accessible place.
-
 ```
 public static final PreferenceItem<Boolean> BOOLEAN_SETTING = new PreferenceItem<>(R.string.key_boolean_setting, true);
 ```
@@ -93,14 +91,15 @@ Refer to the [GSON User Guide](https://github.com/google/gson/blob/master/UserGu
 ## Get a stored value
 
 To retrieve a value use the ```getValue(PreferenceItem preferenceItem)``` method of your ```PreferenceHandler```:
-
 ```
 Boolean value = preferenceHandler.getValue(PreferenceHandler.BOOLEAN_SETTING);
 ```
 
 If possible the result type will be detected automatically.
-If this doesn't work for some reason (f.ex. because you are accessing a generic ```PreferenceItem```) you can specify the return type using the basic java ```<>``` syntax like this:
+If this doesn't work for some reason (f.ex. because you are accessing a generic ```PreferenceItem```) you can specify the return type using the basic java ```<>``` syntax.
+**This will break type safety though and should only be used as a last resort.**
 
+Example:
 ```
 String key = "boolean_setting";
 PreferenceItem preferenceItem = preferenceHandler.getPreferenceItem(key);
@@ -108,19 +107,17 @@ PreferenceItem preferenceItem = preferenceHandler.getPreferenceItem(key);
 Boolean value = preferenceHandler.<Boolean>getValue(preferenceItem);
 ```
 
-You may use any self defined (or not self defined) type you want, f.ex.:
-
+You may use any type you want, f.ex.:
 ```
 ComplexClass value = preferenceHandler.getValue(PreferenceHandler.COMPLEX_SETTING);
 ```
 
 Keep in mind though that saving base types like ```Boolean```, ```Integer```, ```Long```, ```Float```, ```String``` is always preferable to using complex classes that need serialization before they can be saved.
-Base types are saved without serialization.
+Base types are saved without json serialization and can therefore be saved and requestet much faster.
 
 ## Set a new value
 
 To set a new value use the ```setValue(preferenceItem, newValue)``` method:
-
 ```
 preferenceHandler.setValue(PreferenceHandler.BOOLEAN_SETTING, true);
 ```
@@ -129,7 +126,6 @@ The target type of your preference will be detected automatically from the defau
 If the type of ```newValue``` is not the expected one this line will show an error at compile time.
 
 Another example for using a complex class type:
-
 ```
 preferenceHandler.setValue(PreferenceHandler.COMPLEX_SETTING, new ComplexClass("text", 10));
 ```
