@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.ArrayRes;
 import android.support.v4.util.SparseArrayCompat;
+import android.support.v7.preference.Preference;
 
 import javax.inject.Inject;
 
@@ -22,6 +23,7 @@ public class PreferencesFragment extends DaggerPreferenceFragment {
 
     private SparseArrayCompat<String> themeMap;
     private IntListPreference theme;
+    private Preference complex;
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -39,6 +41,10 @@ public class PreferencesFragment extends DaggerPreferenceFragment {
         theme.setDefaultValue(PreferenceHandler.THEME.getDefaultValue());
         themeMap = getListPreferenceEntryValueMap(R.array.theme_values, R.array.theme_names);
         theme.setSummary(themeMap.get(preferenceHandler.getValue(PreferenceHandler.THEME)));
+
+        complex = findPreference(PreferenceHandler.COMPLEX_SETTING.getKey(getContext()));
+        ComplexClass value = preferenceHandler.getValue(PreferenceHandler.COMPLEX_SETTING);
+        complex.setSummary(value.toString());
     }
 
     @Override

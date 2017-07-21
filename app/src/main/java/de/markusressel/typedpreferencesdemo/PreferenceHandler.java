@@ -21,6 +21,8 @@ public class PreferenceHandler extends PreferencesHandlerBase {
     public static final PreferenceItem<Integer> THEME = new PreferenceItem<>(R.string.key_theme, 0);
     public static final PreferenceItem<Boolean> BOOLEAN_SETTING = new PreferenceItem<>(R.string.key_boolean_setting, true);
 
+    public static final PreferenceItem<ComplexClass> COMPLEX_SETTING = new PreferenceItem<>(R.string.key_complex_setting, new ComplexClass("Complex ^", 10));
+
     private List<PreferenceItem> allPreferences;
 
     @Inject
@@ -30,6 +32,7 @@ public class PreferenceHandler extends PreferencesHandlerBase {
         allPreferences = new LinkedList<>();
         allPreferences.add(THEME);
         allPreferences.add(BOOLEAN_SETTING);
+        allPreferences.add(COMPLEX_SETTING);
     }
 
     @NonNull

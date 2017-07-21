@@ -1,6 +1,7 @@
 package de.markusressel.typedpreferences;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 
 import lombok.Getter;
@@ -15,7 +16,11 @@ public class PreferenceItem<T> {
     private final int keyRes;
     private final T defaultValue;
 
-    public PreferenceItem(@StringRes int keyRes, T defaultValue) {
+    public PreferenceItem(@StringRes int keyRes, @NonNull T defaultValue) {
+        if (defaultValue == null) {
+            throw new IllegalArgumentException("default value must not be null!");
+        }
+
         this.keyRes = keyRes;
         this.defaultValue = defaultValue;
     }

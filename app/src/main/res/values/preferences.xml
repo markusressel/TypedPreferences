@@ -25,4 +25,7 @@
     <string name="key_boolean_setting">boolean_setting</string>
     <string name="title_boolean_setting">Boolean Setting</string>
 
+    <string name="key_complex_setting">complex_setting</string>
+    <string name="title_complex_setting">Complex Setting</string>
+
 </resources>

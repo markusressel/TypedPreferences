@@ -7,8 +7,8 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0.0"
+        versionCode 2
+        versionName "1.1.0"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -31,6 +31,9 @@ dependencies {
     annotationProcessor "org.projectlombok:lombok:${rootProject.ext.lombokVersion}"
 
     compile "com.android.support:support-annotations:${rootProject.ext.supportLibVersion}"
+
+    // GSON java json serialization library
+    compile "com.google.code.gson:gson:2.8.1"
 
     testCompile 'junit:junit:4.12'
 }

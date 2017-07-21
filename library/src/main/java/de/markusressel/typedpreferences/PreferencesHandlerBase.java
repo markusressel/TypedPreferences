@@ -26,6 +26,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.google.gson.Gson;
+
 import java.util.List;
 import java.util.Map;
 
@@ -37,12 +39,14 @@ public abstract class PreferencesHandlerBase {
     private static final String TAG = "PreferencesHandlerBase";
 
     protected Context context;
+    protected Gson gson;
 
     private SharedPreferences sharedPreferences;
     private Map<String, ?> cachedValues;
 
     public PreferencesHandlerBase(Context context) {
         this.context = context;
+        gson = new Gson();
 
         sharedPreferences = context.getSharedPreferences(getSharedPreferencesName(), Context.MODE_PRIVATE);
         forceRefreshCache();
@@ -97,13 +101,26 @@ public abstract class PreferencesHandlerBase {
     public <T> T getValue(@NonNull PreferenceItem<T> preferenceItem) throws ClassCastException {
         String key = preferenceItem.getKey(context);
 
-        T value = (T) cachedValues.get(key);
-
         // if no value was set, return preference default
-        if (value == null) {
-            value = preferenceItem.getDefaultValue();
+        if (cachedValues.get(key) == null) {
+            T defaultValue = preferenceItem.getDefaultValue();
             // save default value in file
-            setValue(preferenceItem, value);
+            setValue(preferenceItem, defaultValue);
+        }
+
+        T value;
+        // check if gson serialization is needed
+        if (isBaseType(preferenceItem.getDefaultValue())) {
+            value = (T) cachedValues.get(key);
+        } else {
+            // This should work but the type of T is not detected correctly at runtime :/
+
+//          Type valueTypeToken = new TypeToken<T>() {
+//          }.getType();
+//          value = gson.fromJson((String) cachedValues.get(key), valueTypeToken);
+
+            // this is a workaround for the above issue
+            value = (T) gson.fromJson((String) cachedValues.get(key), preferenceItem.getDefaultValue().getClass());
         }
 
         Log.v(TAG, "retrieving value \"" + value + "\" for key \"" + key + "\"");
@@ -136,13 +153,41 @@ public abstract class PreferencesHandlerBase {
         } else if (newValue instanceof Long) {
             editor.putLong(key, (Long) newValue);
         } else {
-            throw new IllegalArgumentException("Can't save objects of type " + newValue.getClass()
-                    .getCanonicalName());
+            // generate json representation of object
+
+            // just for safety the same workaround as in getValue()
+//            Type valueTypeToken = new TypeToken<T>() {
+//            }.getType();
+//            String json = gson.toJson(newValue, valueTypeToken);
+
+            // workaround
+            String json = gson.toJson(newValue, preferenceItem.getDefaultValue().getClass());
+
+            // save json as a string to preferences
+            editor.putString(key, json);
         }
 
         editor.apply();
 
         forceRefreshCache();
+    }
+
+    /**
+     * Used to check if the passed in object can be saved right away or needs to be serialized by gson
+     *
+     * @param object object to check for type
+     * @return true if it is a base type and can be saved without the need of gson, false otherwise
+     */
+    private boolean isBaseType(Object object) {
+        if (object instanceof Boolean
+                || object instanceof String
+                || object instanceof Integer
+                || object instanceof Float
+                || object instanceof Long) {
+            return true;
+        }
+
+        return false;
     }
 
 }

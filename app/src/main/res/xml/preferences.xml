@@ -15,6 +15,10 @@
             android:key="@string/key_boolean_setting"
             android:title="@string/title_boolean_setting" />
 
+        <Preference
+            android:key="@string/key_complex_setting"
+            android:title="@string/title_complex_setting" />
+
     </PreferenceCategory>
 
 </PreferenceScreen>
