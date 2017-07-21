@@ -33,6 +33,8 @@ import java.util.Map;
 
 /**
  * Preference handler base class used to store general app settings
+ * <p>
+ * Created by Markus on 16.07.2017.
  */
 public abstract class PreferencesHandlerBase {
 
@@ -110,7 +112,7 @@ public abstract class PreferencesHandlerBase {
 
         T value;
         // check if gson serialization is needed
-        if (isBaseType(preferenceItem.getDefaultValue())) {
+        if (preferenceItem.isBaseType()) {
             value = (T) cachedValues.get(key);
         } else {
             // This should work but the type of T is not detected correctly at runtime :/
@@ -170,24 +172,6 @@ public abstract class PreferencesHandlerBase {
         editor.apply();
 
         forceRefreshCache();
-    }
-
-    /**
-     * Used to check if the passed in object can be saved right away or needs to be serialized by gson
-     *
-     * @param object object to check for type
-     * @return true if it is a base type and can be saved without the need of gson, false otherwise
-     */
-    private boolean isBaseType(Object object) {
-        if (object instanceof Boolean
-                || object instanceof String
-                || object instanceof Integer
-                || object instanceof Float
-                || object instanceof Long) {
-            return true;
-        }
-
-        return false;
     }
 
 }
