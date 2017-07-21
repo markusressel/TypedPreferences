@@ -28,4 +28,6 @@
     <string name="key_complex_setting">complex_setting</string>
     <string name="title_complex_setting">Complex Setting</string>
 
+    <string name="key_test">Test</string>
+
 </resources>

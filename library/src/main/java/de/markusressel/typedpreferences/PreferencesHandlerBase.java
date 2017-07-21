@@ -24,6 +24,7 @@ import android.support.annotation.CallSuper;
 import android.support.annotation.CheckResult;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -174,4 +175,40 @@ public abstract class PreferencesHandlerBase {
         forceRefreshCache();
     }
 
+    /**
+     * Removes the saved value for a preference item.
+     * On the next getValue() call the passed in PreferenceItem will return it's default value.
+     *
+     * @param preferenceItem the preference to remove the saved value for
+     */
+    public <T> void clear(PreferenceItem<T> preferenceItem) {
+        clear(preferenceItem.getKeyRes());
+    }
+
+    /**
+     * Removes the saved value for a preference item.
+     * On the next getValue() call the passed in PreferenceItem will return it's default value.
+     *
+     * @param keyRes the key of the preference to remove the saved value for
+     */
+    private void clear(@StringRes int keyRes) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.remove(context.getString(keyRes));
+        editor.apply();
+
+        forceRefreshCache();
+    }
+
+    /**
+     * Remove all saved preferences
+     * <p>
+     * WARNING: this will permanently delete saved values!
+     */
+    public void clearAll() {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.clear();
+        editor.apply();
+
+        forceRefreshCache();
+    }
 }

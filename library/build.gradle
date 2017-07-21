@@ -14,7 +14,6 @@ android {
         versionName "${rootProject.ext.versionName}"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
     }
     buildTypes {
         buildTypes {
@@ -37,6 +36,4 @@ dependencies {
 
     // GSON java json serialization library
     compile "com.google.code.gson:gson:2.8.1"
-
-    testCompile 'junit:junit:4.12'
 }
