@@ -2,7 +2,7 @@
 A simple library to make the use of Android's ```SharedPreferences``` easier while keeping it type safe.
 For base types there is only generics to provide type safety.
 However it is also possible to use more complex types.
-Those will be serialized to json using the **GSON library** ([Link](https://github.com/google/gson)) before saving them to ```SharedPrefrence```s.
+Those will be serialized to json using the **GSON library** ([Link](https://github.com/google/gson)) before saving them to ```SharedPrefrences```.
  
 This library was designed to be used with a Dependency Injection Framework like **Dagger 2** ([Link](https://github.com/google/dagger)) and **Lombok** ([GitHub](https://github.com/rzwitserloot/lombok), [Examples](https://projectlombok.org/features/all)) for boilerplate code generation in mind.
 If you have never used one of those tools I highly recommend looking into them before you start building your app.
@@ -49,6 +49,7 @@ A simple example would look something like this:
 public class PreferenceHandler extends PreferencesHandlerBase {
 
     public static final PreferenceItem<Boolean> BOOLEAN_SETTING = new PreferenceItem<>(R.string.key_boolean_setting, true);
+    public static final PreferenceItem<ComplexClass> COMPLEX_SETTING = new PreferenceItem<>(R.string.key_complex_setting, new ComplexClass("default", 0);
 
     private List<PreferenceItem> allPreferences;
 
@@ -74,9 +75,9 @@ public class PreferenceHandler extends PreferencesHandlerBase {
 }
 ```
 
-## Define your ```PreferenceItem```'s
+## Define your ```PreferenceItem```s
 
-To make accessing your preferences as easy as possible define your preferences by declaring a ```PreferenceItem``` in your ```PreferenceHandler``` or any other accessible place.
+To make accessing your preferences as easy as possible define them by declaring a ```PreferenceItem``` in your ```PreferenceHandler``` or any other accessible place.
 
 ```
 public static final PreferenceItem<Boolean> BOOLEAN_SETTING = new PreferenceItem<>(R.string.key_boolean_setting, true);
@@ -98,7 +99,7 @@ Boolean value = preferenceHandler.getValue(PreferenceHandler.BOOLEAN_SETTING);
 ```
 
 If possible the result type will be detected automatically.
-If this doesn't work for some reason (f.ex. because you access a generic ```PreferenceItem```) you can specify the return type using the basic java ```<>``` syntax like this:
+If this doesn't work for some reason (f.ex. because you are accessing a generic ```PreferenceItem```) you can specify the return type using the basic java ```<>``` syntax like this:
 
 ```
 String key = "boolean_setting";
@@ -126,6 +127,13 @@ preferenceHandler.setValue(PreferenceHandler.BOOLEAN_SETTING, true);
 
 The target type of your preference will be detected automatically from the default value of your ```PreferenceItem```.
 If the type of ```newValue``` is not the expected one this line will show an error at compile time.
+
+Another example for using a complex class type:
+
+```
+preferenceHandler.setValue(PreferenceHandler.COMPLEX_SETTING, new ComplexClass("text", 10));
+```
+
 
 # Troubleshooting
 
