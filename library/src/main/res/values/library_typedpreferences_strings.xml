@@ -23,7 +23,7 @@
     <string name="library_typedpreferences_authorWebsite">http://markusressel.de</string>
     <!-- Library section -->
     <string name="library_typedpreferences_libraryName">TypedPreferences</string>
-    <string name="library_typedpreferences_libraryDescription">A simple and easy way to add targeted tutorial messages to your app</string>
+    <string name="library_typedpreferences_libraryDescription">A simple library to make the use of SharedPreferences easier while keeping it type safe.</string>
     <string name="library_typedpreferences_libraryWebsite">@string/library_typedpreferences_repositoryLink</string>
     <string name="library_typedpreferences_libraryVersion">1.1.2</string>
     <!-- OpenSource section -->
