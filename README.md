@@ -85,7 +85,7 @@ public static final PreferenceItem<Boolean> BOOLEAN_SETTING = new PreferenceItem
 ```
 
 Important to note here is that the key is not a ```String``` but a ```StringRes``` (```int```) that you define in your ```strings.xml```. This makes it possible to also use this value in a ```PreferenceFragment``` like shown in the example app.
-The generic type will be inferred from the **default value, which therefore must not be ```null```**.
+The generic type will be inferred from the **default value, which therefore must not be ```null```**. Otherwise you'd have to specify the type manually which would reduce type safety.
  
 **Since v1.1** the type of your ```PreferenceItem``` is not limited to base types anymore but can be any class extending ```Object```.
 If needed your custom object will be serialized to *json* using the **GSON library** ([Link](https://github.com/google/gson)) and then saved to the ```SharedPreference```s as a ```String```.
