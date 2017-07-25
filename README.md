@@ -11,7 +11,10 @@ If you have never used one of those tools I highly recommend looking into them b
 
 | Master       | Beta | Dev               |
 |--------------|------|-------------------|
-| ![Master](https://travis-ci.org/markusressel/TypedPreferences.svg?branch=master) | ![Beta](https://travis-ci.org/markusressel/TypedPreferences.svg?branch=beta) | ![Dev](https://travis-ci.org/markusressel/TypedPreferences.svg?branch=dev) |
+| [![Master](https://travis-ci.org/markusressel/TypedPreferences.svg?branch=master)](https://travis-ci.org/markusressel/TypedPreferences/branches) | [![Beta](https://travis-ci.org/markusressel/TypedPreferences.svg?branch=beta)](https://travis-ci.org/markusressel/TypedPreferences/branches) | [![Dev](https://travis-ci.org/markusressel/TypedPreferences.svg?branch=dev)](https://travis-ci.org/markusressel/TypedPreferences/branches) |
+| [![codebeat badge](https://codebeat.co/badges/3d9e0c73-a078-48bc-8b8a-4a9128df9163)](https://codebeat.co/projects/github-com-markusressel-typedpreferences-master) | [![codebeat badge](https://codebeat.co/badges/f1691217-6add-4abf-a39c-562dbbbbeaeb)](https://codebeat.co/projects/github-com-markusressel-typedpreferences-beta) | [![codebeat badge](https://codebeat.co/badges/bdfcb8d6-75e4-4b51-9a72-5f6a975859d3)](https://codebeat.co/projects/github-com-markusressel-typedpreferences-dev) |
+
+
 
 # How to use
 Have a look at the demo app (```app```  module) for a complete sample.
