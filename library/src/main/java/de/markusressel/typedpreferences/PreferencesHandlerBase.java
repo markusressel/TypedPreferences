@@ -181,7 +181,8 @@ public abstract class PreferencesHandlerBase {
 
     /**
      * Removes the saved value for a preference item.
-     * On the next getValue() call the passed in PreferenceItem will return it's default value.
+     * On the next getValue() call the passed in PreferenceItem will return it's default value
+     * which will then also be written to the preference file.
      *
      * @param preferenceItem the preference to remove the saved value for
      */

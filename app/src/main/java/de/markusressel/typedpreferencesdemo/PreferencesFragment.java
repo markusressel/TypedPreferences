@@ -24,6 +24,7 @@ public class PreferencesFragment extends DaggerPreferenceFragment {
     private SparseArrayCompat<String> themeMap;
     private IntListPreference theme;
     private Preference complex;
+    private Preference clearAll;
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -45,6 +46,15 @@ public class PreferencesFragment extends DaggerPreferenceFragment {
         complex = findPreference(PreferenceHandler.COMPLEX_SETTING.getKey(getContext()));
         ComplexClass value = preferenceHandler.getValue(PreferenceHandler.COMPLEX_SETTING);
         complex.setSummary(value.toString());
+
+        clearAll = findPreference(getString(R.string.key_clear_all));
+        clearAll.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                preferenceHandler.clearAll();
+                return false;
+            }
+        });
     }
 
     @Override

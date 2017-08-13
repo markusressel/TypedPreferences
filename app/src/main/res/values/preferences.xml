@@ -30,4 +30,7 @@
 
     <string name="key_test">Test</string>
 
+    <string name="key_clear_all">clear_all</string>
+    <string name="title_clear_all">Clear all</string>
+
 </resources>
