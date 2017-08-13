@@ -108,7 +108,7 @@ public abstract class PreferencesHandlerBase {
         if (cachedValues.get(key) == null) {
             T defaultValue = preferenceItem.getDefaultValue();
             // save default value in file
-            setValue(preferenceItem, defaultValue);
+            internalSetValue(preferenceItem, defaultValue);
         }
 
         T value;
@@ -138,6 +138,10 @@ public abstract class PreferencesHandlerBase {
      * @param newValue       new value
      */
     public <T> void setValue(@NonNull PreferenceItem<T> preferenceItem, @NonNull T newValue) {
+        internalSetValue(preferenceItem, newValue);
+    }
+
+    private <T> void internalSetValue(@NonNull PreferenceItem<T> preferenceItem, @NonNull T newValue) {
         String key = preferenceItem.getKey(context);
 
         Log.d(TAG, "setting new value \"" + newValue + "\" for key \"" + key + "\"");
@@ -187,7 +191,8 @@ public abstract class PreferencesHandlerBase {
 
     /**
      * Removes the saved value for a preference item.
-     * On the next getValue() call the passed in PreferenceItem will return it's default value.
+     * On the next getValue() call the passed in PreferenceItem will return it's default value
+     * which will then also be written to the preference file.
      *
      * @param keyRes the key of the preference to remove the saved value for
      */
