@@ -16,41 +16,35 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package de.markusressel.typedpreferencesdemo;
+package de.markusressel.typedpreferencesdemo
 
-import android.content.Context;
-import android.support.v7.preference.ListPreference;
-import android.util.AttributeSet;
+import android.content.Context
+import android.support.v7.preference.ListPreference
+import android.util.AttributeSet
 
 /**
  * Created by Markus on 31.07.2016.
  */
-public class IntListPreference extends ListPreference {
+class IntListPreference : ListPreference {
 
-    public IntListPreference(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
+    constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {}
 
-    public IntListPreference(Context context) {
-        super(context);
-    }
+    constructor(context: Context) : super(context) {}
 
-    @Override
-    protected boolean persistString(String value) {
-        if (value == null) {
-            return false;
+    override fun persistString(value: String?): Boolean {
+        return if (value == null) {
+            false
         } else {
-            return persistInt(Integer.valueOf(value));
+            persistInt(Integer.valueOf(value)!!)
         }
     }
 
-    @Override
-    protected String getPersistedString(String defaultReturnValue) {
-        if (getSharedPreferences().contains(getKey())) {
-            int intValue = getPersistedInt(0);
-            return String.valueOf(intValue);
+    override fun getPersistedString(defaultReturnValue: String): String {
+        if (sharedPreferences.contains(key)) {
+            val intValue = getPersistedInt(0)
+            return intValue.toString()
         } else {
-            return defaultReturnValue;
+            return defaultReturnValue
         }
     }
 

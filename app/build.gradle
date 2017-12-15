@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -26,15 +28,14 @@ dependencies {
     compile "com.android.support:appcompat-v7:${rootProject.ext.supportLibVersion}"
     compile "com.android.support:preference-v14:${rootProject.ext.supportLibVersion}"
 
-    // Lombok - Boilerplate compile time generator
-    compile "org.projectlombok:lombok:${rootProject.ext.lombokVersion}"
-    annotationProcessor "org.projectlombok:lombok:${rootProject.ext.lombokVersion}"
-
     // Dagger 2
     compile "com.google.dagger:dagger:${rootProject.ext.dagger2Version}"
-    annotationProcessor "com.google.dagger:dagger-compiler:${rootProject.ext.dagger2Version}"
+    kapt "com.google.dagger:dagger-compiler:${rootProject.ext.dagger2Version}"
+    kapt "com.android.databinding:compiler:$gradle_plugin_version"
+    provided 'org.glassfish:javax.annotation:10.0-b28'
+
     // if you use the support libraries
-    annotationProcessor "com.google.dagger:dagger-android-processor:${rootProject.ext.dagger2Version}"
+    kapt "com.google.dagger:dagger-android-processor:${rootProject.ext.dagger2Version}"
     compile "com.google.dagger:dagger-android:${rootProject.ext.dagger2Version}"
     compile "com.google.dagger:dagger-android-support:${rootProject.ext.dagger2Version}"
 
@@ -48,8 +49,14 @@ dependencies {
     androidTestCompile 'com.android.support.test:runner:1.0.1'
     // Set this dependency to use JUnit 4 rules
     androidTestCompile 'com.android.support.test:rules:1.0.1'
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
 
 configurations.all {
     resolutionStrategy.force "com.android.support:support-annotations:${rootProject.ext.supportLibVersion}"
 }
+repositories {
+    mavenCentral()
+}
+
+kapt.generateStubs = true
