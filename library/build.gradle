@@ -32,8 +32,8 @@ dependencies {
     compile "com.android.support:support-annotations:${rootProject.ext.supportLibVersion}"
 
     // GSON java json serialization library
-    compile "com.google.code.gson:gson:2.8.1"
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    compile "com.google.code.gson:gson:2.8.2"
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 }
 
 // build a jar with source files
@@ -59,8 +59,3 @@ artifacts {
     archives sourcesJar
     archives javadocJar
 }
-repositories {
-    mavenCentral()
-}
-
-kapt.generateStubs = true
