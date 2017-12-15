@@ -1,6 +1,7 @@
 package de.markusressel.typedpreferencesdemo
 
 import android.os.Bundle
+import com.github.ajalt.timberkt.Timber
 import dagger.android.AndroidInjection
 import dagger.android.support.DaggerAppCompatActivity
 import javax.inject.Inject
@@ -15,6 +16,8 @@ class MainActivity : DaggerAppCompatActivity() {
     lateinit var preferenceHandler: PreferenceHandler
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Timber.d { "Starting activity" }
+
         AndroidInjection.inject(this)
 
         applyTheme()
@@ -33,13 +36,17 @@ class MainActivity : DaggerAppCompatActivity() {
 
     private fun applyTheme() {
         val theme = preferenceHandler.getValue(PreferenceHandler.THEME)
+
+        val light = resources.getString(R.string.theme_light_value).toInt()
+        val dark = resources.getString(R.string.theme_dark_value).toInt()
+
         when (theme) {
-            1 -> {
+            dark -> {
                 applicationContext
                         .setTheme(R.style.AppThemeDark)
                 setTheme(R.style.AppThemeDark)
             }
-            0 -> {
+            light -> {
                 applicationContext
                         .setTheme(R.style.AppTheme)
                 setTheme(R.style.AppTheme)

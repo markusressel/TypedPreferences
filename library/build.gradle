@@ -29,11 +29,18 @@ android {
 }
 
 dependencies {
-    compile "com.android.support:support-annotations:${rootProject.ext.supportLibVersion}"
+    implementation "com.android.support:support-annotations:${rootProject.ext.supportLibVersion}"
 
     // GSON java json serialization library
-    compile "com.google.code.gson:gson:2.8.2"
-    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation "com.google.code.gson:gson:2.8.2"
+
+    // Logging
+    implementation 'com.github.ajalt:timberkt:1.3.0'
+
+    // Kotlin stdlib
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+
+
 }
 
 // build a jar with source files
