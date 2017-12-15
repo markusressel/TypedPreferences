@@ -23,7 +23,7 @@ class PreferencesFragment : DaggerPreferenceFragment() {
     private lateinit var complex: Preference
     private lateinit var clearAll: Preference
 
-    override fun onCreatePreferences(savedInstanceState: Bundle, rootKey: String) {
+    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         // set preferences file name
         preferenceManager.sharedPreferencesName = preferenceHandler.sharedPreferencesName
 
