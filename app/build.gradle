@@ -41,7 +41,7 @@ dependencies {
 
     // Butterknife View Annotation
     compile "com.jakewharton:butterknife:${rootProject.ext.butterknifeVersion}"
-    annotationProcessor "com.jakewharton:butterknife-compiler:${rootProject.ext.butterknifeVersion}"
+    kapt "com.jakewharton:butterknife-compiler:${rootProject.ext.butterknifeVersion}"
 
     compile project(':library')
 
