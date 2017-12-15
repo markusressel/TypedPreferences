@@ -1,5 +1,6 @@
 package de.markusressel.typedpreferencesdemo
 
+import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -18,6 +19,9 @@ class PreferencesFragment : DaggerPreferenceFragment() {
     @Inject
     lateinit var preferenceHandler: PreferenceHandler
 
+    @Inject
+    lateinit var appContext: Context
+
     private lateinit var themeMap: SparseArrayCompat<String>
     private lateinit var theme: IntListPreference
     private lateinit var complex: Preference
@@ -34,12 +38,12 @@ class PreferencesFragment : DaggerPreferenceFragment() {
     }
 
     private fun initializePreferenceItems() {
-        theme = findPreference(PreferenceHandler.THEME.getKey(context!!)) as IntListPreference
+        theme = findPreference(PreferenceHandler.THEME.getKey(appContext)) as IntListPreference
         theme.setDefaultValue(PreferenceHandler.THEME.defaultValue)
         themeMap = getListPreferenceEntryValueMap(R.array.theme_values, R.array.theme_names)
         theme.summary = themeMap.get(preferenceHandler.getValue(PreferenceHandler.THEME))
 
-        complex = findPreference(PreferenceHandler.COMPLEX_SETTING.getKey(context!!))
+        complex = findPreference(PreferenceHandler.COMPLEX_SETTING.getKey(appContext))
         val value = preferenceHandler.getValue(PreferenceHandler.COMPLEX_SETTING)
         complex.summary = value.toString()
 
@@ -59,7 +63,7 @@ class PreferencesFragment : DaggerPreferenceFragment() {
             theme.summary = themeMap.get(preferenceHandler.getValue(preferenceItem))
 
             // restart activity
-            activity!!.finish()
+            activity?.finish()
             val intent = Intent(activity, MainActivity::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -81,7 +85,7 @@ class PreferencesFragment : DaggerPreferenceFragment() {
         val names = resources.getStringArray(nameRes)
 
         for (i in values.indices) {
-            map.put(Integer.valueOf(values[i])!!, names[i])
+            map.put(Integer.valueOf(values[i]), names[i])
         }
 
         return map

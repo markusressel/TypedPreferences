@@ -32,7 +32,7 @@ constructor(context: Context) : PreferencesHandlerBase(context) {
     companion object {
         val THEME = PreferenceItem(R.string.key_theme, 0)
         val BOOLEAN_SETTING = PreferenceItem(R.string.key_boolean_setting, true)
-        val COMPLEX_SETTING = PreferenceItem(R.string.key_complex_setting, ComplexClass("Complex ^", 10))
+        val COMPLEX_SETTING = PreferenceItem(R.string.key_complex_setting, ComplexClass("Complex ^", 10, listOf(1, 2, 3)))
     }
 
 }
