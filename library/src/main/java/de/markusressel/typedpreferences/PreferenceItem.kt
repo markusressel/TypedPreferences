@@ -18,19 +18,17 @@ class PreferenceItem<out T : Any>(@param:StringRes @field:StringRes
     }
 
     /**
-     * Used to check if the passed in object can be saved right away or needs to be serialized by gson
+     * Used to check if the passed in value can be saved right away or needs to be serialized by gson
      *
-     * @param object object to check for type
+     * @param value value to check for type
      * @return true if it is a base type and can be saved without the need of gson, false otherwise
      */
-    private fun isBaseType(`object`: T): Boolean {
-        return if (`object` is Boolean
-                || `object` is String
-                || `object` is Int
-                || `object` is Float
-                || `object` is Long) {
-            true
-        } else false
+    private fun isBaseType(value: T): Boolean {
+        return (value is Boolean
+                || value is String
+                || value is Int
+                || value is Float
+                || value is Long)
     }
 
     /**

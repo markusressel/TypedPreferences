@@ -58,6 +58,20 @@ abstract class PreferencesHandlerBase(protected var context: Context) {
         forceRefreshCache()
     }
 
+    /**
+     * Checks if this PreferencesHandler contains the specified PreferenceItem
+     *
+     * @param preferenceItem the item to check
+     */
+    fun <T : Any> hasPreference(preferenceItem: PreferenceItem<T>): Boolean {
+        return allPreferenceItems.contains(preferenceItem)
+    }
+
+    /**
+     * Get a PreferenceItem by it's key
+     *
+     * @param key the key of the PreferenceItem to get
+     */
     @CheckResult
     fun getPreferenceItem(key: String): PreferenceItem<*>? {
         return allPreferenceItems.firstOrNull { it.getKey(context) == key }
@@ -65,39 +79,49 @@ abstract class PreferencesHandlerBase(protected var context: Context) {
 
     /**
      * Add a listener to a specific PreferenceItem
+     *
+     * NOTE: This listener will not be able to detect changes
+     * made outside of this PreferencesHandler (f.ex. a PreferenceFragment)
+     * To keep track of those changes
+     * you need to do this manually (f.ex. using the onSharedPreferenceChanged() method).
+     *
+     * @param preferenceItem the preferenceItem to listen for changes
+     * @param listener the actions that should be taken when a change is registered
+     *
+     * @return the listener if it was added successfully, null otherwise
      */
-    fun <T : Any> addOnPreferenceChangedListener(preferenceItem: PreferenceItem<T>, listener: (PreferenceItem<Any>, Any, Any) -> Unit): Boolean {
+    fun <T : Any> addOnPreferenceChangedListener(preferenceItem: PreferenceItem<T>, listener: (PreferenceItem<T>, T, T) -> Unit): ((PreferenceItem<T>, T, T) -> Unit)? {
+        if (logIfMissingPreferenceItem(preferenceItem)) {
+            return null
+        }
+
         val listeners = preferenceListeners.getOrPut(preferenceItem) { HashSet() }
 
         if (listeners != null) {
-            if (listeners.contains(listener)) {
+            // this cast is safe, as the type a specific preference will never change during runtime
+            @Suppress("UNCHECKED_CAST")
+            val listenersWithType = listeners as MutableCollection<(PreferenceItem<T>, T, T) -> Unit>
+
+            if (listenersWithType.contains(listener)) {
                 Log.w(TAG, "Listener is already registered for this PreferenceItem")
-                return false
+                return null
             }
 
-            return listeners.add(listener)
+            if (listenersWithType.add(listener))
+                return listener
+            else {
+                return null
+            }
         }
 
-        return false
+        return null
     }
 
     /**
      * Remove a listener of a specific PreferenceItem
-     */
-    fun <T : Any> removeOnPreferenceChangedListener(preferenceItem: PreferenceItem<T>, listener: (PreferenceItem<T>, T, T) -> Unit): Boolean {
-        val listeners = preferenceListeners.getOrElse(preferenceItem) { HashSet() }
-
-        if (listeners != null) {
-            return listeners.remove(listener)
-        } else {
-            Log.w(TAG, "listener list was null, but should never be")
-        }
-
-        return false
-    }
-
-    /**
-     * Remove a listener of a specific PreferenceItem
+     *
+     * @param listener the listener to remove
+     * @return true if it was removed, false otherwise
      */
     fun <T : Any> removeOnPreferenceChangedListener(listener: (PreferenceItem<T>, T, T) -> Unit): Boolean {
         for ((key, listeners) in preferenceListeners) {
@@ -108,6 +132,29 @@ abstract class PreferencesHandlerBase(protected var context: Context) {
         }
 
         return false
+    }
+
+    /**
+     * Remove all OnPreferenceChanged listeners for the specified PreferenceItem from this PreferencesHandler
+     *
+     * @param preferenceItem the preferenceItem to clear listeners for
+     */
+    fun <T : Any> removeAllOnPreferenceChangedListeners(preferenceItem: PreferenceItem<T>) {
+        if (logIfMissingPreferenceItem(preferenceItem)) {
+            return
+        }
+
+        val listeners = preferenceListeners.getOrDefault(preferenceItem, HashSet())
+        listeners?.clear()
+    }
+
+    /**
+     * Remove all OnPreferenceChanged listeners from this PreferencesHandler
+     */
+    fun removeAllOnPreferenceChangedListeners() {
+        for ((key, listeners) in preferenceListeners) {
+            listeners?.clear()
+        }
     }
 
     /**
@@ -130,6 +177,8 @@ abstract class PreferencesHandlerBase(protected var context: Context) {
     @CheckResult
     @CallSuper
     fun <T : Any> getValue(preferenceItem: PreferenceItem<T>): T {
+        throwIfMissingPreferenceItem(preferenceItem)
+
         val key = preferenceItem.getKey(context)
         val value = internalGetValue(preferenceItem, key)
 
@@ -138,6 +187,12 @@ abstract class PreferencesHandlerBase(protected var context: Context) {
         return value
     }
 
+    /**
+     * Internal method for retrieving a value for a PreferenceItem
+     *
+     * @param preferenceItem the PreferenceItem to retrieve the value of
+     * @param key            the key of the PreferenceItem
+     */
     private fun <T : Any> internalGetValue(preferenceItem: PreferenceItem<T>, key: String): T {
         // if no value was set, return preference default
         if (cachedValues[key] == null) {
@@ -168,12 +223,20 @@ abstract class PreferencesHandlerBase(protected var context: Context) {
      * Set a settings value by key
      *
      * @param preferenceItem the preference to set a new value for
-     * @param newValue       new value
+     * @param newValue       the new value
      */
     fun <T : Any> setValue(preferenceItem: PreferenceItem<T>, newValue: T) {
+        throwIfMissingPreferenceItem(preferenceItem)
+
         internalSetValue(preferenceItem, newValue)
     }
 
+    /**
+     * Internal method for setting a new value for a PreferenceItem
+     *
+     * @param preferenceItem the preference to set a new value for
+     * @param newValue       the new value
+     */
     private fun <T : Any> internalSetValue(preferenceItem: PreferenceItem<T>, newValue: T) {
         val key = preferenceItem.getKey(context)
 
@@ -213,7 +276,11 @@ abstract class PreferencesHandlerBase(protected var context: Context) {
     }
 
     /**
+     * Calls the listeners if a value change is detected
      *
+     * @param preferenceItem the PreferenceItem that has been assigned a new value
+     * @param oldValue the old value of the PreferenceItem
+     * @param newValue the new value of the PreferenceItem
      */
     private fun <T : Any> notifyListeners(preferenceItem: PreferenceItem<T>, oldValue: T, newValue: T) {
         if (oldValue != newValue) {
@@ -261,6 +328,35 @@ abstract class PreferencesHandlerBase(protected var context: Context) {
         editor.apply()
 
         forceRefreshCache()
+    }
+
+    /**
+     * Prints a log message if the specified PreferenceItem is missing from this PreferenceHandler
+     *
+     * @param preferenceItem the PreferenceItem that was not found
+     */
+    private fun <T : Any> logIfMissingPreferenceItem(preferenceItem: PreferenceItem<T>): Boolean {
+        if (!hasPreference(preferenceItem)) {
+            Log.w(TAG, "This PreferencesHandler doesn't contain the " +
+                    "specified PreferenceItem (key: '" + preferenceItem.getKey(context) + "')! " +
+                    "Did you add it to the 'allPreferences' list?")
+            return true
+        } else {
+            return false
+        }
+    }
+
+    /**
+     * Raises an Exception if the specified PreferenceItem is missing from this PreferenceHandler
+     *
+     * @param preferenceItem the PreferenceItem that was not found
+     */
+    private fun <T : Any> throwIfMissingPreferenceItem(preferenceItem: PreferenceItem<T>) {
+        if (!hasPreference(preferenceItem)) {
+            throw IllegalArgumentException("This PreferencesHandler doesn't contain the " +
+                    "specified PreferenceItem (key: '" + preferenceItem.getKey(context) + "')! " +
+                    "Did you add it to the 'allPreferences' list?")
+        }
     }
 
     companion object {

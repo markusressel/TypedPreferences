@@ -30,6 +30,8 @@ class PreferencesFragment : DaggerPreferenceFragment() {
     private lateinit var complex: Preference
     private lateinit var clearAll: Preference
 
+    private var booleanSettingListener: ((PreferenceItem<Boolean>, Boolean, Boolean) -> Unit)? = null
+
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         // set preferences file name
         preferenceManager.sharedPreferencesName = preferenceHandler.sharedPreferencesName
@@ -42,19 +44,9 @@ class PreferencesFragment : DaggerPreferenceFragment() {
     }
 
     private fun addListeners() {
-        // set initial value
-        preferenceHandler.setValue(PreferenceHandler.BOOLEAN_SETTING, false)
-
-        // define lambda
-        val log: (PreferenceItem<Any>, Any, Any) -> Unit = { preference, old, new -> Timber.d { "Preference '$preference' changed from '$old' to '$new'" } }
-        preferenceHandler.addOnPreferenceChangedListener(PreferenceHandler.BOOLEAN_SETTING, log)
-
-        // trigger value change
-        preferenceHandler.setValue(PreferenceHandler.BOOLEAN_SETTING, true)
-
-        preferenceHandler.removeOnPreferenceChangedListener(log)
-
-        preferenceHandler.setValue(PreferenceHandler.BOOLEAN_SETTING, false)
+        booleanSettingListener = preferenceHandler.addOnPreferenceChangedListener(PreferenceHandler.BOOLEAN_SETTING) { preference, old, new ->
+            Timber.d { "Preference '${preference.getKey(appContext)}' changed from '$old' to '$new'" }
+        }
     }
 
     private fun initializePreferenceItems() {
@@ -111,6 +103,21 @@ class PreferencesFragment : DaggerPreferenceFragment() {
         }
 
         return map
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        // remove a single listener
+        booleanSettingListener?.let {
+            preferenceHandler.removeOnPreferenceChangedListener(it)
+        }
+
+        // remove all listeners of a specific preference
+        preferenceHandler.removeAllOnPreferenceChangedListeners(PreferenceHandler.BOOLEAN_SETTING)
+
+        // remove all listeners of the handler
+        preferenceHandler.removeAllOnPreferenceChangedListeners()
     }
 
 }
