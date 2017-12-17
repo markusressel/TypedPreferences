@@ -19,7 +19,7 @@ constructor(context: Context) : PreferencesHandlerBase(context) {
     override val sharedPreferencesName: String
         get() = "preferences"
 
-    override val allPreferenceItems: List<PreferenceItem<*>>
+    override val allPreferenceItems: MutableList<PreferenceItem<*>>
         get() = allPreferences
 
     init {

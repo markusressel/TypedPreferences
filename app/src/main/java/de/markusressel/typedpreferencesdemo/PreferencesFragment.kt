@@ -7,6 +7,8 @@ import android.os.Bundle
 import android.support.annotation.ArrayRes
 import android.support.v4.util.SparseArrayCompat
 import android.support.v7.preference.Preference
+import com.github.ajalt.timberkt.Timber
+import de.markusressel.typedpreferences.PreferenceItem
 import de.markusressel.typedpreferencesdemo.dagger.DaggerPreferenceFragment
 import javax.inject.Inject
 
@@ -24,6 +26,7 @@ class PreferencesFragment : DaggerPreferenceFragment() {
 
     private lateinit var themeMap: SparseArrayCompat<String>
     private lateinit var theme: IntListPreference
+    private lateinit var booleanPreference: Preference
     private lateinit var complex: Preference
     private lateinit var clearAll: Preference
 
@@ -35,6 +38,23 @@ class PreferencesFragment : DaggerPreferenceFragment() {
         addPreferencesFromResource(R.xml.preferences)
 
         initializePreferenceItems()
+        addListeners()
+    }
+
+    private fun addListeners() {
+        // set initial value
+        preferenceHandler.setValue(PreferenceHandler.BOOLEAN_SETTING, false)
+
+        // define lambda
+        val log: (PreferenceItem<Any>, Any, Any) -> Unit = { preference, old, new -> Timber.d { "Preference '$preference' changed from '$old' to '$new'" } }
+        preferenceHandler.addOnPreferenceChangedListener(PreferenceHandler.BOOLEAN_SETTING, log)
+
+        // trigger value change
+        preferenceHandler.setValue(PreferenceHandler.BOOLEAN_SETTING, true)
+
+        preferenceHandler.removeOnPreferenceChangedListener(log)
+
+        preferenceHandler.setValue(PreferenceHandler.BOOLEAN_SETTING, false)
     }
 
     private fun initializePreferenceItems() {
@@ -42,6 +62,8 @@ class PreferencesFragment : DaggerPreferenceFragment() {
         theme.setDefaultValue(PreferenceHandler.THEME.defaultValue)
         themeMap = getListPreferenceEntryValueMap(R.array.theme_values, R.array.theme_names)
         theme.summary = themeMap.get(preferenceHandler.getValue(PreferenceHandler.THEME))
+
+        booleanPreference = findPreference(PreferenceHandler.BOOLEAN_SETTING.getKey(appContext))
 
         complex = findPreference(PreferenceHandler.COMPLEX_SETTING.getKey(appContext))
         val value = preferenceHandler.getValue(PreferenceHandler.COMPLEX_SETTING)

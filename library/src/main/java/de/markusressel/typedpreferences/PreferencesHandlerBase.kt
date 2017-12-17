@@ -24,7 +24,6 @@ import android.support.annotation.CallSuper
 import android.support.annotation.CheckResult
 import android.support.annotation.StringRes
 import android.util.Log
-
 import com.google.gson.Gson
 
 /**
@@ -40,6 +39,8 @@ abstract class PreferencesHandlerBase(protected var context: Context) {
     private val sharedPreferences: SharedPreferences
     private lateinit var cachedValues: Map<String, *>
 
+    private val preferenceListeners: MutableMap<PreferenceItem<Any>, MutableCollection<(PreferenceItem<Any>, Any, Any) -> Unit>?> = mutableMapOf()
+
     /**
      * @return the name of the preferences (file) to use
      */
@@ -50,7 +51,7 @@ abstract class PreferencesHandlerBase(protected var context: Context) {
      * @return a list of all PreferenceItems used by this PreferenceHandler
      */
     @get:CheckResult
-    abstract val allPreferenceItems: List<PreferenceItem<*>>
+    abstract val allPreferenceItems: MutableList<PreferenceItem<*>>
 
     init {
         sharedPreferences = context.getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE)
@@ -60,6 +61,53 @@ abstract class PreferencesHandlerBase(protected var context: Context) {
     @CheckResult
     fun getPreferenceItem(key: String): PreferenceItem<*>? {
         return allPreferenceItems.firstOrNull { it.getKey(context) == key }
+    }
+
+    /**
+     * Add a listener to a specific PreferenceItem
+     */
+    fun <T : Any> addOnPreferenceChangedListener(preferenceItem: PreferenceItem<T>, listener: (PreferenceItem<Any>, Any, Any) -> Unit): Boolean {
+        val listeners = preferenceListeners.getOrPut(preferenceItem) { HashSet() }
+
+        if (listeners != null) {
+            if (listeners.contains(listener)) {
+                Log.w(TAG, "Listener is already registered for this PreferenceItem")
+                return false
+            }
+
+            return listeners.add(listener)
+        }
+
+        return false
+    }
+
+    /**
+     * Remove a listener of a specific PreferenceItem
+     */
+    fun <T : Any> removeOnPreferenceChangedListener(preferenceItem: PreferenceItem<T>, listener: (PreferenceItem<T>, T, T) -> Unit): Boolean {
+        val listeners = preferenceListeners.getOrElse(preferenceItem) { HashSet() }
+
+        if (listeners != null) {
+            return listeners.remove(listener)
+        } else {
+            Log.w(TAG, "listener list was null, but should never be")
+        }
+
+        return false
+    }
+
+    /**
+     * Remove a listener of a specific PreferenceItem
+     */
+    fun <T : Any> removeOnPreferenceChangedListener(listener: (PreferenceItem<T>, T, T) -> Unit): Boolean {
+        for ((key, listeners) in preferenceListeners) {
+            if (listeners != null && listeners.contains(listener)) {
+                listeners.remove(listener)
+                return true
+            }
+        }
+
+        return false
     }
 
     /**
@@ -83,7 +131,14 @@ abstract class PreferencesHandlerBase(protected var context: Context) {
     @CallSuper
     fun <T : Any> getValue(preferenceItem: PreferenceItem<T>): T {
         val key = preferenceItem.getKey(context)
+        val value = internalGetValue(preferenceItem, key)
 
+        Log.v(TAG, "retrieving value \"$value\" for key \"$key\"")
+
+        return value
+    }
+
+    private fun <T : Any> internalGetValue(preferenceItem: PreferenceItem<T>, key: String): T {
         // if no value was set, return preference default
         if (cachedValues[key] == null) {
             val defaultValue = preferenceItem.defaultValue
@@ -106,8 +161,6 @@ abstract class PreferencesHandlerBase(protected var context: Context) {
             value = gson.fromJson<Any>(cachedValues[key] as String, preferenceItem.defaultValue::class.java) as T
         }
 
-        Log.v(TAG, "retrieving value \"$value\" for key \"$key\"")
-
         return value
     }
 
@@ -123,6 +176,9 @@ abstract class PreferencesHandlerBase(protected var context: Context) {
 
     private fun <T : Any> internalSetValue(preferenceItem: PreferenceItem<T>, newValue: T) {
         val key = preferenceItem.getKey(context)
+
+        val oldValue = internalGetValue(preferenceItem, key)
+        notifyListeners(preferenceItem, oldValue, newValue)
 
         Log.d(TAG, "setting new value \"$newValue\" for key \"$key\"")
 
@@ -154,6 +210,17 @@ abstract class PreferencesHandlerBase(protected var context: Context) {
         editor.apply()
 
         forceRefreshCache()
+    }
+
+    /**
+     *
+     */
+    private fun <T : Any> notifyListeners(preferenceItem: PreferenceItem<T>, oldValue: T, newValue: T) {
+        if (oldValue != newValue) {
+            preferenceListeners.getOrDefault(preferenceItem, HashSet())?.forEach {
+                it.invoke(preferenceItem, oldValue, newValue)
+            }
+        }
     }
 
     /**
