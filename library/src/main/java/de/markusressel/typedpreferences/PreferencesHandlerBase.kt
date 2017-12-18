@@ -95,6 +95,7 @@ abstract class PreferencesHandlerBase(protected var context: Context) {
             return null
         }
 
+        @Suppress("UNCHECKED_CAST")
         val listeners = preferenceListeners.getOrPut(preferenceItem as PreferenceItem<Any>) { HashSet() }
 
         if (listeners != null) {
@@ -124,7 +125,7 @@ abstract class PreferencesHandlerBase(protected var context: Context) {
      * @return true if it was removed, false otherwise
      */
     fun <T : Any> removeOnPreferenceChangedListener(listener: (PreferenceItem<T>, T, T) -> Unit): Boolean {
-        for ((key, listeners) in preferenceListeners) {
+        for ((_, listeners) in preferenceListeners) {
             if (listeners != null && listeners.contains(listener)) {
                 listeners.remove(listener)
                 return true
@@ -144,6 +145,7 @@ abstract class PreferencesHandlerBase(protected var context: Context) {
             return
         }
 
+        @Suppress("UNCHECKED_CAST")
         val listeners = preferenceListeners.getOrDefault(preferenceItem as PreferenceItem<Any>, HashSet())
         listeners?.clear()
     }
@@ -152,7 +154,7 @@ abstract class PreferencesHandlerBase(protected var context: Context) {
      * Remove all OnPreferenceChanged listeners from this PreferencesHandler
      */
     fun removeAllOnPreferenceChangedListeners() {
-        for ((key, listeners) in preferenceListeners) {
+        for ((_, listeners) in preferenceListeners) {
             listeners?.clear()
         }
     }
@@ -204,6 +206,7 @@ abstract class PreferencesHandlerBase(protected var context: Context) {
         val value: T
         // check if gson serialization is needed
         if (preferenceItem.isBaseType) {
+            @Suppress("UNCHECKED_CAST")
             value = cachedValues[key] as T
         } else {
             // This should work but the type of T is not detected correctly at runtime :/
@@ -213,6 +216,7 @@ abstract class PreferencesHandlerBase(protected var context: Context) {
             //          value = gson.fromJson((String) cachedValues.get(key), valueTypeToken);
 
             // this is a workaround for the above issue
+            @Suppress("UNCHECKED_CAST")
             value = gson.fromJson<Any>(cachedValues[key] as String, preferenceItem.defaultValue::class.java) as T
         }
 
@@ -286,6 +290,7 @@ abstract class PreferencesHandlerBase(protected var context: Context) {
      */
     private fun <T : Any> notifyListeners(preferenceItem: PreferenceItem<T>, oldValue: T, newValue: T) {
         if (oldValue != newValue) {
+            @Suppress("UNCHECKED_CAST")
             preferenceListeners.getOrDefault(preferenceItem as PreferenceItem<Any>, HashSet())?.forEach {
                 it.invoke(preferenceItem, oldValue, newValue)
             }

@@ -43,6 +43,9 @@ class PreferencesFragment : DaggerPreferenceFragment() {
     }
 
     private fun addListeners() {
+        val hasPreference = preferenceHandler.hasPreference(PreferenceHandler.BOOLEAN_SETTING)
+        Timber.d { "PreferenceHandler has boolean preference: " + hasPreference }
+
         booleanSettingListener = preferenceHandler.addOnPreferenceChangedListener(PreferenceHandler.BOOLEAN_SETTING) { preference, old, new ->
             Timber.d { "Preference '${preference.getKey(appContext)}' changed from '$old' to '$new'" }
         }
