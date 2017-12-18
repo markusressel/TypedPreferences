@@ -41,51 +41,59 @@ in your project build.gradle file and
 in your desired module ```build.gradle``` file.
 
 ## Create a PreferenceHandler
-The first thing you have to do to get started is creating a class which extends the provided ```PreferenceHandlerBase``` class.
-Override the necessary methods like ```getSharedPreferencesName()``` to provide the name of your SharedPreferences file and ```getAllPreferenceItems()``` to return a list of all your ```PreferenceItem```s.
+The first thing you have to do to get started is creating a class which extends the provided ```PreferencesHandlerBase``` class.
+Override the necessary methods like ```getSharedPreferencesName()``` to provide the name of your SharedPreferences file and initialize the ```allPreferenceItems``` property to return a set of all your ```PreferenceItem```s.
 
 A simple example would look something like this:
 ```
 @Singleton
-public class PreferenceHandler extends PreferencesHandlerBase {
+class PreferenceHandler @Inject
+constructor(context: Context) : PreferencesHandlerBase(context) {
 
-    public static final PreferenceItem<Boolean> BOOLEAN_SETTING = new PreferenceItem<>(R.string.key_boolean_setting, true);
-    public static final PreferenceItem<ComplexClass> COMPLEX_SETTING = new PreferenceItem<>(R.string.key_complex_setting, new ComplexClass("default", 0);
+    // be sure to override the get() method
+    override val sharedPreferencesName: String
+        get() = "preferences"
 
-    private List<PreferenceItem> allPreferences;
+    override val allPreferenceItems: Set<PreferenceItem<*>> = hashSetOf(
+            THEME,
+            BOOLEAN_SETTING,
+            COMPLEX_SETTING
+    )
 
-    @Inject
-    public PreferenceHandler(Context context) {
-        super(context);
-
-        allPreferences = new LinkedList<>();
-        allPreferences.add(BOOLEAN_SETTING);
-        allPreferences.add(COMPLEX_SETTING);
+    companion object {
+        val THEME = PreferenceItem(R.string.key_theme, 0)
+        val BOOLEAN_SETTING = PreferenceItem(R.string.key_boolean_setting, true)
+        val COMPLEX_SETTING = PreferenceItem(R.string.key_complex_setting, ComplexClass("Complex ^", 10, listOf(1, 2, 3)))
     }
 
-    @NonNull
-    @Override
-    public String getSharedPreferencesName() {
-        return "preferences";
-    }
-
-    @NonNull
-    @Override
-    public List<PreferenceItem> getAllPreferenceItems() {
-        return allPreferences;
-    }
 }
+```
+
+**Attention**:
+
+Be sure to override the ```get()``` method of the sharedPreferencesName variable as seen above!
+The example below will not work and the PreferenceHandler will be initialized using ```null``` instead!
+
+```
+// THIS WILL NOT WORK!
+// because of the initialization order of java objects
+// use the getter variant instead as seen above
+override val sharedPreferencesName: String = "preferences"
 ```
 
 ## Define your ```PreferenceItem```s
 
-To make accessing your preferences as easy as possible define them by declaring a ```PreferenceItem``` in your ```PreferenceHandler``` or any other accessible place.
+To make accessing your preferences as easy as possible define them by declaring a ```PreferenceItem``` in the companion object of your ```PreferenceHandler``` or any other accessible place.
 ```
-public static final PreferenceItem<Boolean> BOOLEAN_SETTING = new PreferenceItem<>(R.string.key_boolean_setting, true);
+companion object {
+    val THEME = PreferenceItem(R.string.key_theme, 0)
+    val BOOLEAN_SETTING = PreferenceItem(R.string.key_boolean_setting, true)
+    val COMPLEX_SETTING = PreferenceItem(R.string.key_complex_setting, ComplexClass("Complex ^", 10, listOf(1, 2, 3)))
+}
 ```
 
-Important to note here is that the key is not a ```String``` but a ```StringRes``` (```int```) that you define in your ```strings.xml```. This makes it possible to also use this value in a ```PreferenceFragment``` like shown in the example app.
-The generic type will be inferred from the **default value, which therefore must not be ```null```**. Otherwise you'd have to specify the type manually which would reduce type safety.
+Important to note here is that the key is not a ```String``` but a ```StringRes``` (```Int```) that you define in your ```strings.xml``` (or a similar resource file). This makes it possible to also use this value in a ```PreferenceFragment``` like shown in the example app.
+The generic type will be inferred from the **default value, which therefore must not be ```null```**. Otherwise you'd have to specify the type manually which would reduce type safety and isn't possible since the kotlin port of this library (v2.0).
  
 **Since v1.1** the type of your ```PreferenceItem``` is not limited to base types anymore but can be any class extending ```Object```.
 If needed your custom object will be serialized to *json* using the **GSON library** ([Link](https://github.com/google/gson)) and then saved to the ```SharedPreference```s as a ```String```.
@@ -93,34 +101,37 @@ Refer to the [GSON User Guide](https://github.com/google/gson/blob/master/UserGu
 
 ## Get a stored value
 
-To retrieve a value use the ```getValue(PreferenceItem preferenceItem)``` method of your ```PreferenceHandler```:
+To retrieve a value use the ```getValue(preferenceItem: PreferenceItem<T>): T``` method of your ```PreferenceHandler```:
 ```
-Boolean value = preferenceHandler.getValue(PreferenceHandler.BOOLEAN_SETTING);
+val value = preferenceHandler.getValue(PreferenceHandler.BOOLEAN_SETTING)
 ```
 
 If possible the result type will be detected automatically.
-If this doesn't work for some reason (f.ex. because you are accessing a generic ```PreferenceItem```) you can specify the return type using the basic java ```<>``` syntax.
+If this doesn't work for some reason (f.ex. because you are accessing a generic ```PreferenceItem```) you need to check it's type manually (if necessary).
 **This will break type safety though and should only be used as a last resort.**
 
 Example:
 ```
-String key = "boolean_setting";
-PreferenceItem preferenceItem = preferenceHandler.getPreferenceItem(key);
-
-Boolean value = preferenceHandler.<Boolean>getValue(preferenceItem);
+val key = "boolean_preference"
+val preferenceItem = preferenceHandler.getPreferenceItem(key)
+preferenceItem?.let {
+    val itemValue = preferenceHandler.getValue(it) as Boolean
+}
 ```
+**This will break type safety though and should only be used as a last resort.**
 
 You may use any type you want, f.ex.:
 ```
-ComplexClass value = preferenceHandler.getValue(PreferenceHandler.COMPLEX_SETTING);
+// the type (ComplexClass) is automatically inferred
+val complexClass = preferenceHandler.getValue(PreferenceHandler.COMPLEX_SETTING)
 ```
 
-Keep in mind though that saving base types like ```Boolean```, ```Integer```, ```Long```, ```Float```, ```String``` is always preferable to using complex classes that need serialization before they can be saved.
-Base types are saved without json serialization and can therefore be saved and requestet much faster.
+Keep in mind though that saving base types like ```Boolean```, ```Int```, ```Long```, ```Float```, ```String``` is always preferable to using complex classes that need serialization before they can be saved.
+Base types are saved without json serialization and can therefore be saved and requested much faster.
 
 ## Set a new value
 
-To set a new value use the ```setValue(preferenceItem, newValue)``` method:
+To set a new value use the ```setValue(preferenceItem: PreferenceItem<T>, newValue: T)``` method:
 ```
 preferenceHandler.setValue(PreferenceHandler.BOOLEAN_SETTING, true);
 ```
@@ -130,7 +141,7 @@ If the type of ```newValue``` is not the expected one this line will show an err
 
 Another example for using a complex class type:
 ```
-preferenceHandler.setValue(PreferenceHandler.COMPLEX_SETTING, new ComplexClass("text", 10));
+preferenceHandler.setValue(PreferenceHandler.COMPLEX_SETTING, ComplexClass("Test", 0, listOf()))
 ```
 
 

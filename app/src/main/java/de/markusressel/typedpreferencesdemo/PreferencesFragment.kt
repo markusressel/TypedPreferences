@@ -15,7 +15,6 @@ import javax.inject.Inject
 /**
  * Created by Markus on 18.07.2017.
  */
-
 class PreferencesFragment : DaggerPreferenceFragment() {
 
     @Inject

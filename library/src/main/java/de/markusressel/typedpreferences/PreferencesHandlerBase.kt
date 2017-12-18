@@ -39,7 +39,7 @@ abstract class PreferencesHandlerBase(protected var context: Context) {
     private val sharedPreferences: SharedPreferences
     private lateinit var cachedValues: Map<String, *>
 
-    private val preferenceListeners: MutableMap<PreferenceItem<Any>, MutableCollection<(PreferenceItem<Any>, Any, Any) -> Unit>?> = mutableMapOf()
+    private val preferenceListeners: MutableMap<PreferenceItem<Any>, MutableCollection<(PreferenceItem<*>, Any, Any) -> Unit>?> = mutableMapOf()
 
     /**
      * @return the name of the preferences (file) to use
@@ -51,7 +51,7 @@ abstract class PreferencesHandlerBase(protected var context: Context) {
      * @return a list of all PreferenceItems used by this PreferenceHandler
      */
     @get:CheckResult
-    abstract val allPreferenceItems: MutableList<PreferenceItem<*>>
+    abstract val allPreferenceItems: Set<PreferenceItem<*>>
 
     init {
         sharedPreferences = context.getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE)
@@ -95,7 +95,7 @@ abstract class PreferencesHandlerBase(protected var context: Context) {
             return null
         }
 
-        val listeners = preferenceListeners.getOrPut(preferenceItem) { HashSet() }
+        val listeners = preferenceListeners.getOrPut(preferenceItem as PreferenceItem<Any>) { HashSet() }
 
         if (listeners != null) {
             // this cast is safe, as the type a specific preference will never change during runtime
@@ -144,7 +144,7 @@ abstract class PreferencesHandlerBase(protected var context: Context) {
             return
         }
 
-        val listeners = preferenceListeners.getOrDefault(preferenceItem, HashSet())
+        val listeners = preferenceListeners.getOrDefault(preferenceItem as PreferenceItem<Any>, HashSet())
         listeners?.clear()
     }
 
@@ -198,7 +198,7 @@ abstract class PreferencesHandlerBase(protected var context: Context) {
         if (cachedValues[key] == null) {
             val defaultValue = preferenceItem.defaultValue
             // save default value in file
-            internalSetValue(preferenceItem, defaultValue)
+            internalSetValue(preferenceItem, key, defaultValue, defaultValue)
         }
 
         val value: T
@@ -228,22 +228,24 @@ abstract class PreferencesHandlerBase(protected var context: Context) {
     fun <T : Any> setValue(preferenceItem: PreferenceItem<T>, newValue: T) {
         throwIfMissingPreferenceItem(preferenceItem)
 
-        internalSetValue(preferenceItem, newValue)
+        val key = preferenceItem.getKey(context)
+        val oldValue = internalGetValue(preferenceItem, key)
+
+        Log.d(TAG, "setting new value \"$newValue\" for key \"$key\"")
+
+        internalSetValue(preferenceItem, key, oldValue, newValue)
     }
 
     /**
      * Internal method for setting a new value for a PreferenceItem
      *
      * @param preferenceItem the preference to set a new value for
+     * @param key the key of the PreferenceItem
      * @param newValue       the new value
      */
-    private fun <T : Any> internalSetValue(preferenceItem: PreferenceItem<T>, newValue: T) {
-        val key = preferenceItem.getKey(context)
-
-        val oldValue = internalGetValue(preferenceItem, key)
+    private fun <T : Any> internalSetValue(preferenceItem: PreferenceItem<T>, key: String, oldValue: T, newValue: T) {
         notifyListeners(preferenceItem, oldValue, newValue)
 
-        Log.d(TAG, "setting new value \"$newValue\" for key \"$key\"")
 
         // store the new value
         val editor = sharedPreferences.edit()
@@ -284,7 +286,7 @@ abstract class PreferencesHandlerBase(protected var context: Context) {
      */
     private fun <T : Any> notifyListeners(preferenceItem: PreferenceItem<T>, oldValue: T, newValue: T) {
         if (oldValue != newValue) {
-            preferenceListeners.getOrDefault(preferenceItem, HashSet())?.forEach {
+            preferenceListeners.getOrDefault(preferenceItem as PreferenceItem<Any>, HashSet())?.forEach {
                 it.invoke(preferenceItem, oldValue, newValue)
             }
         }

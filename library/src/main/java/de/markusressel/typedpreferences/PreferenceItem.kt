@@ -9,8 +9,8 @@ import android.support.annotation.StringRes
  *
  * Created by Markus on 16.07.2017.
  */
-class PreferenceItem<out T : Any>(@param:StringRes @field:StringRes
-                                  val keyRes: Int, val defaultValue: T) {
+class PreferenceItem<T : Any>(@param:StringRes @field:StringRes
+                              val keyRes: Int, val defaultValue: T) {
     val isBaseType: Boolean
 
     init {
