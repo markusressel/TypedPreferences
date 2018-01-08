@@ -32,14 +32,15 @@ import com.google.gson.Gson
  *
  * Created by Markus on 16.07.2017.
  */
-abstract class PreferencesHandlerBase(protected var context: Context) {
-
+abstract class PreferencesHandlerBase(protected var context: Context) : SharedPreferences.OnSharedPreferenceChangeListener {
     private var gson: Gson = Gson()
 
     private val sharedPreferences: SharedPreferences
     private lateinit var cachedValues: Map<String, *>
 
     private val preferenceListeners: MutableMap<PreferenceItem<Any>, MutableCollection<(PreferenceItem<*>, Any, Any) -> Unit>?> = mutableMapOf()
+
+    private var someListenerIsRegistered: Boolean = false
 
     /**
      * @return the name of the preferences (file) to use
@@ -103,6 +104,11 @@ abstract class PreferencesHandlerBase(protected var context: Context) {
     fun <T : Any> addOnPreferenceChangedListener(preferenceItem: PreferenceItem<T>, listener: (PreferenceItem<T>, T, T) -> Unit): ((PreferenceItem<T>, T, T) -> Unit)? {
         if (logIfMissingPreferenceItem(preferenceItem)) {
             return null
+        }
+
+        if (!someListenerIsRegistered) {
+            sharedPreferences.registerOnSharedPreferenceChangeListener(this)
+            someListenerIsRegistered = !someListenerIsRegistered
         }
 
         @Suppress("UNCHECKED_CAST")
@@ -170,9 +176,30 @@ abstract class PreferencesHandlerBase(protected var context: Context) {
     }
 
     /**
-     * Forces an update of the cached values
+     * Internal listener for changes of shared preferences.
+     * This listener will also notify external listeners if necessary.
      */
-    fun forceRefreshCache() {
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
+        if (key == null) {
+            forceRefreshCache()
+            return
+        }
+
+        val preferenceItem = getPreferenceItem(key) as PreferenceItem<Any>?
+
+        preferenceItem?.let {
+            val oldValue = internalGetValue(it, key)
+            forceRefreshCache()
+            val newValue = internalGetValue(it, key)
+
+            notifyListeners(it, oldValue, newValue)
+        }
+    }
+
+    /**
+     * Forces an update of cached values
+     */
+    protected fun forceRefreshCache() {
         cachedValues = sharedPreferences.all
     }
 
@@ -210,7 +237,7 @@ abstract class PreferencesHandlerBase(protected var context: Context) {
         if (cachedValues[key] == null) {
             val defaultValue = preferenceItem.defaultValue
             // save default value in file
-            internalSetValue(preferenceItem, key, defaultValue, defaultValue)
+            internalSetValue(preferenceItem, key, defaultValue)
         }
 
         val value: T
@@ -243,11 +270,10 @@ abstract class PreferencesHandlerBase(protected var context: Context) {
         throwIfMissingPreferenceItem(preferenceItem)
 
         val key = preferenceItem.getKey(context)
-        val oldValue = internalGetValue(preferenceItem, key)
 
         Log.d(TAG, "setting new value \"$newValue\" for key \"$key\"")
 
-        internalSetValue(preferenceItem, key, oldValue, newValue)
+        internalSetValue(preferenceItem, key, newValue)
     }
 
     /**
@@ -257,10 +283,7 @@ abstract class PreferencesHandlerBase(protected var context: Context) {
      * @param key the key of the PreferenceItem
      * @param newValue       the new value
      */
-    private fun <T : Any> internalSetValue(preferenceItem: PreferenceItem<T>, key: String, oldValue: T, newValue: T) {
-        notifyListeners(preferenceItem, oldValue, newValue)
-
-
+    private fun <T : Any> internalSetValue(preferenceItem: PreferenceItem<T>, key: String, newValue: T) {
         // store the new value
         val editor = sharedPreferences.edit()
 
@@ -287,8 +310,6 @@ abstract class PreferencesHandlerBase(protected var context: Context) {
         }
 
         editor.apply()
-
-        forceRefreshCache()
     }
 
     /**

@@ -18,7 +18,6 @@ package de.markusressel.typedpreferencesdemo
 
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.support.annotation.ArrayRes
 import android.support.v4.util.SparseArrayCompat
@@ -65,6 +64,17 @@ class PreferencesFragment : DaggerPreferenceFragment() {
         booleanSettingListener = preferenceHandler.addOnPreferenceChangedListener(PreferenceHandler.BOOLEAN_SETTING) { preference, old, new ->
             Timber.d { "Preference '${preference.getKey(appContext)}' changed from '$old' to '$new'" }
         }
+
+        preferenceHandler.addOnPreferenceChangedListener(PreferenceHandler.THEME) { preference, old, new ->
+            theme.summary = themeMap.get(new)
+
+            // restart activity
+            activity?.finish()
+            val intent = Intent(activity, MainActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(intent)
+        }
     }
 
     private fun initializePreferenceItems() {
@@ -83,23 +93,6 @@ class PreferencesFragment : DaggerPreferenceFragment() {
         clearAll.onPreferenceClickListener = Preference.OnPreferenceClickListener {
             preferenceHandler.clearAll()
             false
-        }
-    }
-
-    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
-        preferenceHandler.forceRefreshCache()
-
-        val preferenceItem = preferenceHandler.getPreferenceItem(key) ?: return
-
-        if (preferenceItem == PreferenceHandler.THEME) {
-            theme.summary = themeMap.get(preferenceHandler.getValue(preferenceItem))
-
-            // restart activity
-            activity?.finish()
-            val intent = Intent(activity, MainActivity::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            startActivity(intent)
         }
     }
 

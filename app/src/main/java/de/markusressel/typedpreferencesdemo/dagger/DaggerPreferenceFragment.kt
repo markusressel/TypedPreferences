@@ -18,7 +18,6 @@ package de.markusressel.typedpreferencesdemo.dagger
 
 import android.app.Fragment
 import android.content.Context
-import android.content.SharedPreferences
 import android.support.v7.preference.PreferenceFragmentCompat
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
@@ -29,7 +28,7 @@ import javax.inject.Inject
 /**
  * Created by Markus on 15.07.2017.
  */
-abstract class DaggerPreferenceFragment : PreferenceFragmentCompat(), HasFragmentInjector, SharedPreferences.OnSharedPreferenceChangeListener {
+abstract class DaggerPreferenceFragment : PreferenceFragmentCompat(), HasFragmentInjector {
 
     @Inject
     lateinit var childFragmentInjector: DispatchingAndroidInjector<Fragment>
@@ -42,20 +41,6 @@ abstract class DaggerPreferenceFragment : PreferenceFragmentCompat(), HasFragmen
 
     override fun fragmentInjector(): AndroidInjector<Fragment>? {
         return childFragmentInjector
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-        preferenceScreen.sharedPreferences
-                .registerOnSharedPreferenceChangeListener(this)
-    }
-
-    override fun onPause() {
-        preferenceScreen.sharedPreferences
-                .unregisterOnSharedPreferenceChangeListener(this)
-
-        super.onPause()
     }
 
 }
