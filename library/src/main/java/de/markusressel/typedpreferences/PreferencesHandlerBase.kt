@@ -162,7 +162,7 @@ abstract class PreferencesHandlerBase(protected var context: Context) : SharedPr
         }
 
         @Suppress("UNCHECKED_CAST")
-        val listeners = preferenceListeners.getOrDefault(preferenceItem as PreferenceItem<Any>, HashSet())
+        val listeners = preferenceListeners.withDefault { HashSet() }.getValue(preferenceItem as PreferenceItem<Any>)
         listeners?.clear()
     }
 
@@ -323,7 +323,7 @@ abstract class PreferencesHandlerBase(protected var context: Context) : SharedPr
     private fun <T : Any> notifyListeners(preferenceItem: PreferenceItem<T>, oldValue: T, newValue: T) {
         if (oldValue != newValue) {
             @Suppress("UNCHECKED_CAST")
-            preferenceListeners.getOrDefault(preferenceItem as PreferenceItem<Any>, HashSet())?.forEach {
+            preferenceListeners.withDefault { HashSet() }.getValue(preferenceItem as PreferenceItem<Any>)?.forEach {
                 it.invoke(preferenceItem, oldValue, newValue)
             }
         }
