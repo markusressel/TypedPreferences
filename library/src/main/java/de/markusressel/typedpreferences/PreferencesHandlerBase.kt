@@ -238,6 +238,7 @@ abstract class PreferencesHandlerBase(protected var context: Context) : SharedPr
             val defaultValue = preferenceItem.defaultValue
             // save default value in file
             internalSetValue(preferenceItem, key, defaultValue)
+            forceRefreshCache()
         }
 
         val value: T
