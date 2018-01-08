@@ -146,6 +146,42 @@ Another example for using a complex class type:
 preferenceHandler.setValue(PreferenceHandler.COMPLEX_SETTING, ComplexClass("Test", 0, listOf()))
 ```
 
+## Listen for value changes
+
+Just like with the default SharedPreferences you can add a listener to get notified of value changes.
+To preserve type safety you can only add listeners for specific ```PreferenceItem```'s:
+```
+val booleanSettingListener = preferenceHandler.addOnPreferenceChangedListener(PreferenceHandler.BOOLEAN_SETTING) { 
+    preference, old, new ->
+        Timber.d { "Preference '${preference.getKey(appContext)}' changed from '$old' to '$new'" }
+    }
+```
+
+To make it easier for you to remove this listener when you don't need it anymore the method will 
+return the exact listener you passed in as an argument.
+
+To remove a listener use one of these methods:
+
+```
+// remove a single listener
+booleanSettingListener?.let {
+    preferenceHandler.removeOnPreferenceChangedListener(it)
+}
+
+// remove all listeners of a specific preference
+preferenceHandler.removeAllOnPreferenceChangedListeners(PreferenceHandler.BOOLEAN_SETTING)
+
+// remove all listeners of the handler
+preferenceHandler.removeAllOnPreferenceChangedListeners()
+```
+
+## Check if a PreferenceHandler contains a specific PreferenceItem
+
+If you implement multiple PreferenceHandler's it might be necessary to check if the PreferenceHandler
+you are trying to use contains the PreferenceItem you want to access. To do this you can use this method:
+```
+val hasPreference = preferenceHandler.hasPreference(PreferenceHandler.BOOLEAN_SETTING)
+```
 
 # Troubleshooting
 
