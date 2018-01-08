@@ -116,8 +116,8 @@ class PreferencesFragment : DaggerPreferenceFragment() {
         return map
     }
 
-    override fun onStop() {
-        super.onStop()
+    override fun onPause() {
+        super.onPause()
 
         // remove a single listener
         booleanSettingListener?.let {
