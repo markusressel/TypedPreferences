@@ -149,6 +149,9 @@ preferenceHandler.setValue(PreferenceHandler.COMPLEX_SETTING, ComplexClass("Test
 ## Listen for value changes
 
 Just like with the default SharedPreferences you can add a listener to get notified of value changes.
+Note that this listener will only trigger if the the value for this ```PreferenceItem``` 
+actually changed (oldValue != newValue).
+
 To preserve type safety you can only add listeners for specific ```PreferenceItem```'s:
 ```
 val booleanSettingListener = preferenceHandler.addOnPreferenceChangedListener(PreferenceHandler.BOOLEAN_SETTING) { 
@@ -175,10 +178,10 @@ preferenceHandler.removeAllOnPreferenceChangedListeners(PreferenceHandler.BOOLEA
 preferenceHandler.removeAllOnPreferenceChangedListeners()
 ```
 
-## Check if a PreferenceHandler contains a specific PreferenceItem
+## Check if a ```PreferenceHandler``` contains a specific ```PreferenceItem```
 
-If you implement multiple PreferenceHandler's it might be necessary to check if the PreferenceHandler
-you are trying to use contains the PreferenceItem you want to access. To do this you can use this method:
+If you implement multiple ```PreferenceHandler```'s it might be necessary to check if the ```PreferenceHandler```
+you are trying to use contains the ```PreferenceItem``` you want to access. To do this you can use this method:
 ```
 val hasPreference = preferenceHandler.hasPreference(PreferenceHandler.BOOLEAN_SETTING)
 ```
