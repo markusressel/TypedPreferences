@@ -18,6 +18,8 @@ package de.markusressel.typedpreferences
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.os.Build
+import android.preference.PreferenceManager
 import android.support.annotation.CallSuper
 import android.support.annotation.CheckResult
 import android.support.annotation.StringRes
@@ -43,7 +45,7 @@ abstract class PreferencesHandlerBase(protected var context: Context) {
      * @return the name of the preferences (file) to use
      */
     @get:CheckResult
-    abstract val sharedPreferencesName: String
+    abstract var sharedPreferencesName: String?
 
     /**
      * @return a list of all PreferenceItems used by this PreferenceHandler
@@ -52,7 +54,17 @@ abstract class PreferencesHandlerBase(protected var context: Context) {
     abstract val allPreferenceItems: Set<PreferenceItem<*>>
 
     init {
+
+        if (sharedPreferencesName == null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                sharedPreferencesName = PreferenceManager.getDefaultSharedPreferencesName(context)
+            } else {
+                sharedPreferencesName = context.packageName + "_preferences"
+            }
+        }
+
         sharedPreferences = context.getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE)
+
         forceRefreshCache()
     }
 

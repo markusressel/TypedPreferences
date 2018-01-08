@@ -51,7 +51,7 @@ class PreferenceHandler @Inject
 constructor(context: Context) : PreferencesHandlerBase(context) {
 
     // be sure to override the get() method
-    override val sharedPreferencesName: String
+    override var sharedPreferencesName: String? = null
         get() = "preferences"
 
     override val allPreferenceItems: Set<PreferenceItem<*>> = hashSetOf(
@@ -74,11 +74,13 @@ constructor(context: Context) : PreferencesHandlerBase(context) {
 Be sure to override the ```get()``` method of the sharedPreferencesName variable as seen above!
 The example below will not work and the PreferenceHandler will be initialized using ```null``` instead!
 
+You can also purposefully set it to ```null``` if you want to use the default preferences.
+
 ```
 // THIS WILL NOT WORK!
 // because of the initialization order of java objects
 // use the getter variant instead as seen above
-override val sharedPreferencesName: String = "preferences"
+override val sharedPreferencesName: String? = "preferences"
 ```
 
 ## Define your ```PreferenceItem```s
