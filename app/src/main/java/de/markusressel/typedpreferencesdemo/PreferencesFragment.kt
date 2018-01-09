@@ -18,6 +18,7 @@ package de.markusressel.typedpreferencesdemo
 
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.support.annotation.ArrayRes
 import android.support.v4.util.SparseArrayCompat
@@ -30,7 +31,13 @@ import javax.inject.Inject
 /**
  * Created by Markus on 18.07.2017.
  */
-class PreferencesFragment : DaggerPreferenceFragment() {
+class PreferencesFragment : DaggerPreferenceFragment(), SharedPreferences.OnSharedPreferenceChangeListener {
+    override fun onSharedPreferenceChanged(p0: SharedPreferences?, p1: String?) {
+        val cachedValue = preferenceHandler.getValue(PreferenceHandler.BOOLEAN_SETTING)
+        val nonCachedValue = preferenceHandler.getValue(PreferenceHandler.BOOLEAN_SETTING, false)
+
+        Timber.d { "Cached: $cachedValue NonCached: $nonCachedValue" }
+    }
 
     @Inject
     lateinit var preferenceHandler: PreferenceHandler
@@ -55,6 +62,8 @@ class PreferencesFragment : DaggerPreferenceFragment() {
 
         initializePreferenceItems()
         addListeners()
+
+        preferenceManager.sharedPreferences.registerOnSharedPreferenceChangeListener(this)
     }
 
     private fun addListeners() {

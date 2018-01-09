@@ -188,9 +188,9 @@ abstract class PreferencesHandlerBase(protected var context: Context) : SharedPr
         val preferenceItem = getPreferenceItem(key) as PreferenceItem<Any>?
 
         preferenceItem?.let {
-            val oldValue = internalGetValue(it, key)
+            val oldValue = internalGetValue(it, key, true)
             forceRefreshCache()
-            val newValue = internalGetValue(it, key)
+            val newValue = internalGetValue(it, key, true)
 
             notifyListeners(it, oldValue, newValue)
         }
@@ -216,10 +216,28 @@ abstract class PreferencesHandlerBase(protected var context: Context) : SharedPr
     @CheckResult
     @CallSuper
     fun <T : Any> getValue(preferenceItem: PreferenceItem<T>): T {
+        return getValue(preferenceItem, true)
+    }
+
+    /**
+     * Get a settings value by key
+     *
+     *
+     * Note: Be sure to assign the return value of this method to variable with your expected return type.
+     *
+     * @param preferenceItem Key of setting
+     * @param <T>            expected type of return value (optional)
+     * @param useCache if set to true a cache will be used, if set to false no cache will be used
+     *                  Note that this does not affect later calls
+     * @return settings value
+    </T> */
+    @CheckResult
+    @CallSuper
+    fun <T : Any> getValue(preferenceItem: PreferenceItem<T>, useCache: Boolean): T {
         throwIfMissingPreferenceItem(preferenceItem)
 
         val key = preferenceItem.getKey(context)
-        val value = internalGetValue(preferenceItem, key)
+        val value = internalGetValue(preferenceItem, key, useCache)
 
         Log.v(TAG, "retrieving value \"$value\" for key \"$key\"")
 
@@ -232,7 +250,8 @@ abstract class PreferencesHandlerBase(protected var context: Context) : SharedPr
      * @param preferenceItem the PreferenceItem to retrieve the value of
      * @param key            the key of the PreferenceItem
      */
-    private fun <T : Any> internalGetValue(preferenceItem: PreferenceItem<T>, key: String): T {
+    private fun <T : Any> internalGetValue(preferenceItem: PreferenceItem<T>, key: String, useCache: Boolean): T {
+
         // if no value was set, return preference default
         if (cachedValues[key] == null) {
             val defaultValue = preferenceItem.defaultValue
@@ -241,11 +260,17 @@ abstract class PreferencesHandlerBase(protected var context: Context) : SharedPr
             forceRefreshCache()
         }
 
+        val dataSource: Map<String, *> = if (useCache) {
+            cachedValues
+        } else {
+            sharedPreferences.all
+        }
+
         val value: T
         // check if gson serialization is needed
         if (preferenceItem.isBaseType) {
             @Suppress("UNCHECKED_CAST")
-            value = cachedValues[key] as T
+            value = dataSource[key] as T
         } else {
             // This should work but the type of T is not detected correctly at runtime :/
 
@@ -255,7 +280,7 @@ abstract class PreferencesHandlerBase(protected var context: Context) : SharedPr
 
             // this is a workaround for the above issue
             @Suppress("UNCHECKED_CAST")
-            value = gson.fromJson<Any>(cachedValues[key] as String, preferenceItem.defaultValue::class.java) as T
+            value = gson.fromJson<Any>(dataSource[key] as String, preferenceItem.defaultValue::class.java) as T
         }
 
         return value
