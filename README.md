@@ -32,7 +32,7 @@ To use this library just include it in your depencencies using
 in your project build.gradle file and
 
     dependencies {
-        compile('com.github.markusressel:TypedPreferences:v2.0.2') {
+        compile('com.github.markusressel:TypedPreferences:v2.1.1') {
             exclude module: 'app'
             transitive = true
         }
