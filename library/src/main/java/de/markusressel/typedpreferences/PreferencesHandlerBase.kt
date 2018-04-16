@@ -270,7 +270,6 @@ abstract class PreferencesHandlerBase(protected var context: Context) : SharedPr
                     .defaultValue
             // save default value in file
             internalSetValue(preferenceItem, key, defaultValue)
-            forceRefreshCache()
         }
 
         val dataSource: Map<String, *> = if (useCache) {
@@ -354,6 +353,7 @@ abstract class PreferencesHandlerBase(protected var context: Context) : SharedPr
 
         editor
                 .apply()
+        forceRefreshCache()
     }
 
     /**
