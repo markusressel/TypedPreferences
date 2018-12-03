@@ -32,7 +32,8 @@ import javax.inject.Inject
  * Created by Markus on 18.07.2017.
  */
 class PreferencesFragment : DaggerPreferenceFragment(), SharedPreferences.OnSharedPreferenceChangeListener {
-    override fun onSharedPreferenceChanged(p0: SharedPreferences?, p1: String?) {
+
+    override fun onSharedPreferenceChanged(prefs: SharedPreferences?, key: String?) {
         val cachedValue = preferenceHandler.getValue(PreferenceHandler.BOOLEAN_SETTING)
         val nonCachedValue = preferenceHandler.getValue(PreferenceHandler.BOOLEAN_SETTING, false)
 
@@ -68,7 +69,7 @@ class PreferencesFragment : DaggerPreferenceFragment(), SharedPreferences.OnShar
 
     private fun addListeners() {
         val hasPreference = preferenceHandler.hasPreference(PreferenceHandler.BOOLEAN_SETTING)
-        Timber.d { "PreferenceHandler has boolean preference: " + hasPreference }
+        Timber.d { "PreferenceHandler has boolean preference: $hasPreference" }
 
         booleanSettingListener = preferenceHandler.addOnPreferenceChangedListener(PreferenceHandler.BOOLEAN_SETTING) { preference, old, new ->
             Timber.d { "Preference '${preference.getKey(appContext)}' changed from '$old' to '$new'" }

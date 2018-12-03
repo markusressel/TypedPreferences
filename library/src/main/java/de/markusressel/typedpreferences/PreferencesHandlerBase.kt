@@ -33,6 +33,7 @@ import com.google.gson.Gson
  * Created by Markus on 16.07.2017.
  */
 abstract class PreferencesHandlerBase(protected var context: Context) : SharedPreferences.OnSharedPreferenceChangeListener {
+
     private var gson: Gson = Gson()
 
     private val sharedPreferences: SharedPreferences
@@ -57,16 +58,15 @@ abstract class PreferencesHandlerBase(protected var context: Context) : SharedPr
     init {
 
         if (sharedPreferencesName == null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                sharedPreferencesName = PreferenceManager
+            sharedPreferencesName = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                PreferenceManager
                         .getDefaultSharedPreferencesName(context)
             } else {
-                sharedPreferencesName = context.packageName + "_preferences"
+                context.packageName + "_preferences"
             }
         }
 
-        sharedPreferences = context
-                .getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE)
+        sharedPreferences = context.getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE)
 
         forceRefreshCache()
     }
@@ -146,8 +146,7 @@ abstract class PreferencesHandlerBase(protected var context: Context) : SharedPr
     open fun <T : Any> removeOnPreferenceChangedListener(listener: (PreferenceItem<T>, T, T) -> Unit): Boolean {
         for ((_, listeners) in preferenceListeners) {
             if (listeners != null && listeners.contains(listener)) {
-                listeners
-                        .remove(listener)
+                listeners.remove(listener)
                 return true
             }
         }
@@ -168,8 +167,7 @@ abstract class PreferencesHandlerBase(protected var context: Context) : SharedPr
         @Suppress("UNCHECKED_CAST") val listeners = preferenceListeners
                 .withDefault { HashSet() }
                 .getValue(preferenceItem as PreferenceItem<Any>)
-        listeners
-                ?.clear()
+        listeners?.clear()
     }
 
     /**
@@ -177,8 +175,7 @@ abstract class PreferencesHandlerBase(protected var context: Context) : SharedPr
      */
     fun removeAllOnPreferenceChangedListeners() {
         for ((_, listeners) in preferenceListeners) {
-            listeners
-                    ?.clear()
+            listeners?.clear()
         }
     }
 
@@ -303,8 +300,7 @@ abstract class PreferencesHandlerBase(protected var context: Context) : SharedPr
     open fun <T : Any> setValue(preferenceItem: PreferenceItem<T>, newValue: T) {
         throwIfMissingPreferenceItem(preferenceItem)
 
-        val key = preferenceItem
-                .getKey(context)
+        val key = preferenceItem.getKey(context)
 
         Log.d(TAG, "setting new value \"$newValue\" for key \"$key\"")
 
@@ -320,8 +316,7 @@ abstract class PreferencesHandlerBase(protected var context: Context) : SharedPr
      */
     private fun <T : Any> internalSetValue(preferenceItem: PreferenceItem<T>, key: String, newValue: T) {
         // store the new value
-        val editor = sharedPreferences
-                .edit()
+        val editor = sharedPreferences.edit()
 
         when (newValue) {
             is Boolean -> editor.putBoolean(key, newValue as Boolean)
@@ -342,13 +337,11 @@ abstract class PreferencesHandlerBase(protected var context: Context) : SharedPr
                         .toJson(newValue, preferenceItem.defaultValue::class.java)
 
                 // save json as a string to preferences
-                editor
-                        .putString(key, json)
+                editor.putString(key, json)
             }
         }
 
-        editor
-                .apply()
+        editor.apply()
         forceRefreshCache()
     }
 
@@ -363,8 +356,7 @@ abstract class PreferencesHandlerBase(protected var context: Context) : SharedPr
         if (oldValue != newValue) {
             @Suppress("UNCHECKED_CAST")
             preferenceListeners.withDefault { HashSet() }.getValue(preferenceItem as PreferenceItem<Any>)?.forEach {
-                it
-                        .invoke(preferenceItem, oldValue, newValue)
+                it.invoke(preferenceItem, oldValue, newValue)
             }
         }
     }
@@ -388,12 +380,9 @@ abstract class PreferencesHandlerBase(protected var context: Context) : SharedPr
      * @param keyRes the key of the preference to remove the saved value for
      */
     private fun clear(@StringRes keyRes: Int) {
-        val editor = sharedPreferences
-                .edit()
-        editor
-                .remove(context.getString(keyRes))
-        editor
-                .apply()
+        val editor = sharedPreferences.edit()
+        editor.remove(context.getString(keyRes))
+        editor.apply()
 
         forceRefreshCache()
     }
@@ -405,12 +394,9 @@ abstract class PreferencesHandlerBase(protected var context: Context) : SharedPr
      * WARNING: this will permanently delete saved values!
      */
     open fun clearAll() {
-        val editor = sharedPreferences
-                .edit()
-        editor
-                .clear()
-        editor
-                .apply()
+        val editor = sharedPreferences.edit()
+        editor.clear()
+        editor.apply()
 
         forceRefreshCache()
     }
