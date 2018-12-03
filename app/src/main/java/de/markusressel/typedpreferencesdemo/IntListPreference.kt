@@ -17,32 +17,32 @@
 package de.markusressel.typedpreferencesdemo
 
 import android.content.Context
-import android.support.v7.preference.ListPreference
 import android.util.AttributeSet
+import androidx.preference.ListPreference
 
 /**
  * Created by Markus on 31.07.2016.
  */
 class IntListPreference : ListPreference {
 
-    constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {}
+    constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
 
-    constructor(context: Context) : super(context) {}
+    constructor(context: Context) : super(context)
 
     override fun persistString(value: String?): Boolean {
         return if (value == null) {
             false
         } else {
-            persistInt(Integer.valueOf(value)!!)
+            persistInt(Integer.valueOf(value))
         }
     }
 
     override fun getPersistedString(defaultReturnValue: String?): String {
-        if (sharedPreferences.contains(key)) {
+        return if (sharedPreferences.contains(key)) {
             val intValue = getPersistedInt(0)
-            return intValue.toString()
+            intValue.toString()
         } else {
-            return defaultReturnValue as String
+            defaultReturnValue as String
         }
     }
 

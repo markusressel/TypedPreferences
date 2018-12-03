@@ -18,7 +18,7 @@ package de.markusressel.typedpreferencesdemo.dagger
 
 import android.app.Fragment
 import android.content.Context
-import android.support.v7.preference.PreferenceFragmentCompat
+import androidx.preference.PreferenceFragmentCompat
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasFragmentInjector

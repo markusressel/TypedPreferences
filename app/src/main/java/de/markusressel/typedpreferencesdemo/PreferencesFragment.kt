@@ -20,9 +20,9 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.support.annotation.ArrayRes
-import android.support.v4.util.SparseArrayCompat
-import android.support.v7.preference.Preference
+import androidx.annotation.ArrayRes
+import androidx.collection.SparseArrayCompat
+import androidx.preference.Preference
 import com.github.ajalt.timberkt.Timber
 import de.markusressel.typedpreferences.PreferenceItem
 import de.markusressel.typedpreferencesdemo.dagger.DaggerPreferenceFragment

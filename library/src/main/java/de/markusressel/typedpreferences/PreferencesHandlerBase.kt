@@ -20,10 +20,10 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.os.Build
 import android.preference.PreferenceManager
-import android.support.annotation.CallSuper
-import android.support.annotation.CheckResult
-import android.support.annotation.StringRes
 import android.util.Log
+import androidx.annotation.CallSuper
+import androidx.annotation.CheckResult
+import androidx.annotation.StringRes
 import com.google.gson.Gson
 
 /**
@@ -76,9 +76,9 @@ abstract class PreferencesHandlerBase(protected var context: Context) : SharedPr
      *
      * @param preferenceItem the item to check
      */
+
     open fun <T : Any> hasPreference(preferenceItem: PreferenceItem<T>): Boolean {
-        return allPreferenceItems
-                .contains(preferenceItem)
+        return allPreferenceItems.contains(preferenceItem)
     }
 
     /**
@@ -88,8 +88,7 @@ abstract class PreferencesHandlerBase(protected var context: Context) : SharedPr
      */
     @CheckResult
     open fun getPreferenceItem(key: String): PreferenceItem<*>? {
-        return allPreferenceItems
-                .firstOrNull { it.getKey(context) == key }
+        return allPreferenceItems.firstOrNull { it.getKey(context) == key }
     }
 
     /**
@@ -124,14 +123,14 @@ abstract class PreferencesHandlerBase(protected var context: Context) : SharedPr
             @Suppress("UNCHECKED_CAST") val listenersWithType = listeners as MutableCollection<(PreferenceItem<T>, T, T) -> Unit>
 
             if (listenersWithType.contains(listener)) {
-                Log
-                        .w(TAG, "Listener is already registered for this PreferenceItem")
+                Log.w(TAG, "Listener is already registered for this PreferenceItem")
                 return null
             }
 
-            if (listenersWithType.add(listener)) return listener
-            else {
-                return null
+            return if (listenersWithType.add(listener)) {
+                listener
+            } else {
+                null
             }
         }
 
@@ -193,6 +192,7 @@ abstract class PreferencesHandlerBase(protected var context: Context) : SharedPr
             return
         }
 
+        @Suppress("UNCHECKED_CAST")
         val preferenceItem = getPreferenceItem(key) as PreferenceItem<Any>?
 
         preferenceItem
@@ -209,8 +209,7 @@ abstract class PreferencesHandlerBase(protected var context: Context) : SharedPr
      * Forces an update of cached values
      */
     protected open fun forceRefreshCache() {
-        cachedValues = sharedPreferences
-                .all
+        cachedValues = sharedPreferences.all
     }
 
     /**
@@ -246,12 +245,10 @@ abstract class PreferencesHandlerBase(protected var context: Context) : SharedPr
     open fun <T : Any> getValue(preferenceItem: PreferenceItem<T>, useCache: Boolean): T {
         throwIfMissingPreferenceItem(preferenceItem)
 
-        val key = preferenceItem
-                .getKey(context)
+        val key = preferenceItem.getKey(context)
         val value = internalGetValue(preferenceItem, key, useCache)
 
-        Log
-                .v(TAG, "retrieving value \"$value\" for key \"$key\"")
+        Log.v(TAG, "retrieving value \"$value\" for key \"$key\"")
 
         return value
     }
@@ -266,8 +263,7 @@ abstract class PreferencesHandlerBase(protected var context: Context) : SharedPr
 
         // if no value was set, return preference default
         if (cachedValues[key] == null) {
-            val defaultValue = preferenceItem
-                    .defaultValue
+            val defaultValue = preferenceItem.defaultValue
             // save default value in file
             internalSetValue(preferenceItem, key, defaultValue)
         }
@@ -275,14 +271,14 @@ abstract class PreferencesHandlerBase(protected var context: Context) : SharedPr
         val dataSource: Map<String, *> = if (useCache) {
             cachedValues
         } else {
-            sharedPreferences
-                    .all
+            sharedPreferences.all
         }
 
         val value: T
         // check if gson serialization is needed
         if (preferenceItem.isBaseType) {
-            @Suppress("UNCHECKED_CAST") value = dataSource[key] as T
+            @Suppress("UNCHECKED_CAST")
+            value = dataSource[key] as T
         } else {
             // This should work but the type of T is not detected correctly at runtime :/
 
@@ -291,7 +287,8 @@ abstract class PreferencesHandlerBase(protected var context: Context) : SharedPr
             //          value = gson.fromJson((String) cachedValues.get(key), valueTypeToken);
 
             // this is a workaround for the above issue
-            @Suppress("UNCHECKED_CAST") value = gson.fromJson<Any>(dataSource[key] as String, preferenceItem.defaultValue::class.java) as T
+            @Suppress("UNCHECKED_CAST")
+            value = gson.fromJson<Any>(dataSource[key] as String, preferenceItem.defaultValue::class.java) as T
         }
 
         return value
@@ -309,8 +306,7 @@ abstract class PreferencesHandlerBase(protected var context: Context) : SharedPr
         val key = preferenceItem
                 .getKey(context)
 
-        Log
-                .d(TAG, "setting new value \"$newValue\" for key \"$key\"")
+        Log.d(TAG, "setting new value \"$newValue\" for key \"$key\"")
 
         internalSetValue(preferenceItem, key, newValue)
     }
@@ -365,7 +361,8 @@ abstract class PreferencesHandlerBase(protected var context: Context) : SharedPr
      */
     private fun <T : Any> notifyListeners(preferenceItem: PreferenceItem<T>, oldValue: T, newValue: T) {
         if (oldValue != newValue) {
-            @Suppress("UNCHECKED_CAST") preferenceListeners.withDefault { HashSet() }.getValue(preferenceItem as PreferenceItem<Any>)?.forEach {
+            @Suppress("UNCHECKED_CAST")
+            preferenceListeners.withDefault { HashSet() }.getValue(preferenceItem as PreferenceItem<Any>)?.forEach {
                 it
                         .invoke(preferenceItem, oldValue, newValue)
             }
@@ -425,8 +422,7 @@ abstract class PreferencesHandlerBase(protected var context: Context) : SharedPr
      */
     private fun <T : Any> logIfMissingPreferenceItem(preferenceItem: PreferenceItem<T>): Boolean {
         if (!hasPreference(preferenceItem)) {
-            Log
-                    .w(TAG, "This PreferencesHandler doesn't contain the " + "specified PreferenceItem (key: '" + preferenceItem.getKey(context) + "')! " + "Did you add it to the 'allPreferences' list?")
+            Log.w(TAG, "This PreferencesHandler doesn't contain the " + "specified PreferenceItem (key: '" + preferenceItem.getKey(context) + "')! " + "Did you add it to the 'allPreferences' list?")
             return true
         } else {
             return false
@@ -445,6 +441,6 @@ abstract class PreferencesHandlerBase(protected var context: Context) : SharedPr
     }
 
     companion object {
-        private val TAG = "PreferencesHandlerBase"
+        private const val TAG = "PreferencesHandlerBase"
     }
 }

@@ -33,7 +33,7 @@ constructor(context: Context) : PreferencesHandlerBase(context) {
     override var sharedPreferencesName: String? = null
         get() = "preferences"
 
-    override val allPreferenceItems: Set<PreferenceItem<*>> = hashSetOf(
+    override val allPreferenceItems: Set<PreferenceItem<*>> = setOf(
             THEME,
             BOOLEAN_SETTING,
             COMPLEX_SETTING
