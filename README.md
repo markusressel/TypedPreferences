@@ -25,21 +25,21 @@ Using DI is the recommended way to use this library.
 To use this library just include it in your depencencies using
 
 ```groovy
-    repositories {
-        ...
-        maven { url "https://jitpack.io" }
-    }
+repositories {
+    ...
+    maven { url "https://jitpack.io" }
+}
 ```
 
 in your project build.gradle file and
 
 ```groovy
-    dependencies {
-        implementation('com.github.markusressel:TypedPreferences:v2.1.1') {
-            exclude module: 'app'
-            transitive = true
-        }
+dependencies {
+    implementation('com.github.markusressel:TypedPreferences:v2.1.1') {
+        exclude module: 'app'
+        transitive = true
     }
+}
 ```
 
 in your desired module ```build.gradle``` file.
