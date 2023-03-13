@@ -24,19 +24,23 @@ Using DI is the recommended way to use this library.
 ## Gradle
 To use this library just include it in your depencencies using
 
+```groovy
     repositories {
         ...
         maven { url "https://jitpack.io" }
     }
+```
 
 in your project build.gradle file and
 
+```groovy
     dependencies {
-        compile('com.github.markusressel:TypedPreferences:v2.1.1') {
+        implementation('com.github.markusressel:TypedPreferences:v2.1.1') {
             exclude module: 'app'
             transitive = true
         }
     }
+```
 
 in your desired module ```build.gradle``` file.
 
@@ -45,7 +49,7 @@ The first thing you have to do to get started is creating a class which extends 
 Override the necessary methods like ```getSharedPreferencesName()``` to provide the name of your SharedPreferences file and initialize the ```allPreferenceItems``` property to return a set of all your ```PreferenceItem```s.
 
 A simple example would look something like this:
-```
+```kotlin
 @Singleton
 class PreferenceHandler @Inject
 constructor(context: Context) : PreferencesHandlerBase(context) {
@@ -76,7 +80,7 @@ The example below will not work and the PreferenceHandler will be initialized us
 
 You can also purposefully set it to ```null``` if you want to use the default preferences.
 
-```
+```kotlin
 // THIS WILL NOT WORK!
 // because of the initialization order of java objects
 // use the getter variant instead as seen above
@@ -86,7 +90,8 @@ override val sharedPreferencesName: String? = "preferences"
 ## Define your ```PreferenceItem```s
 
 To make accessing your preferences as easy as possible define them by declaring a ```PreferenceItem``` in the companion object of your ```PreferenceHandler``` or any other accessible place.
-```
+
+```kotlin
 companion object {
     val THEME = PreferenceItem(R.string.key_theme, 0)
     val BOOLEAN_SETTING = PreferenceItem(R.string.key_boolean_setting, true)
@@ -104,7 +109,7 @@ Refer to the [GSON User Guide](https://github.com/google/gson/blob/master/UserGu
 ## Get a stored value
 
 To retrieve a value use the ```getValue(preferenceItem: PreferenceItem<T>): T``` method of your ```PreferenceHandler```:
-```
+```kotlin
 val value = preferenceHandler.getValue(PreferenceHandler.BOOLEAN_SETTING)
 ```
 
@@ -113,7 +118,7 @@ If this doesn't work for some reason (f.ex. because you are accessing a generic 
 **This will break type safety though and should only be used as a last resort.**
 
 Example:
-```
+```kotlin
 val key = "boolean_preference"
 val preferenceItem = preferenceHandler.getPreferenceItem(key)
 preferenceItem?.let {
@@ -123,7 +128,7 @@ preferenceItem?.let {
 **This will break type safety though and should only be used as a last resort.**
 
 You may use any type you want, f.ex.:
-```
+```kotlin
 // the type (ComplexClass) is automatically inferred
 val complexClass = preferenceHandler.getValue(PreferenceHandler.COMPLEX_SETTING)
 ```
@@ -134,7 +139,7 @@ Base types are saved without json serialization and can therefore be saved and r
 ## Set a new value
 
 To set a new value use the ```setValue(preferenceItem: PreferenceItem<T>, newValue: T)``` method:
-```
+```kotlin
 preferenceHandler.setValue(PreferenceHandler.BOOLEAN_SETTING, true);
 ```
 
@@ -142,7 +147,7 @@ The target type of your preference will be detected automatically from the defau
 If the type of ```newValue``` is not the expected one this line will show an error at compile time.
 
 Another example for using a complex class type:
-```
+```kotlin
 preferenceHandler.setValue(PreferenceHandler.COMPLEX_SETTING, ComplexClass("Test", 0, listOf()))
 ```
 
@@ -153,7 +158,7 @@ Note that this listener will only trigger if the the value for this ```Preferenc
 actually changed (oldValue != newValue).
 
 To preserve type safety you can only add listeners for specific ```PreferenceItem```'s:
-```
+```kotlin
 val booleanSettingListener = preferenceHandler.addOnPreferenceChangedListener(PreferenceHandler.BOOLEAN_SETTING) { 
     preference, old, new ->
         Timber.d { "Preference '${preference.getKey(appContext)}' changed from '$old' to '$new'" }
@@ -165,7 +170,7 @@ return the exact listener you passed in as an argument.
 
 To remove a listener use one of these methods:
 
-```
+```kotlin
 // remove a single listener
 booleanSettingListener?.let {
     preferenceHandler.removeOnPreferenceChangedListener(it)
@@ -182,7 +187,7 @@ preferenceHandler.removeAllOnPreferenceChangedListeners()
 
 If you implement multiple ```PreferenceHandler```'s it might be necessary to check if the ```PreferenceHandler```
 you are trying to use contains the ```PreferenceItem``` you want to access. To do this you can use this method:
-```
+```kotlin
 val hasPreference = preferenceHandler.hasPreference(PreferenceHandler.BOOLEAN_SETTING)
 ```
 
